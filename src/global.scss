@@ -45,7 +45,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(22, 143, 192
 .brand-title { display: flex; flex-direction: column; gap: 3px; }
 .brand-title strong { color: var(--ink-2); font: 700 13px/1.2 var(--font-display); letter-spacing: -.02em; }
 .brand-title span { color: var(--muted); font-size: 10px; line-height: 1.3; }
-.dashboard-mode-switch { display: flex; align-items: center; gap: 2px; margin-left: auto; padding: 3px; border: 1px solid #e1eaed; border-radius: 7px; background: #f7fafb; }
+.dashboard-mode-switch { display: flex; align-items: center; gap: 2px; padding: 3px; border: 1px solid #e1eaed; border-radius: 7px; background: #f7fafb; }
 .dashboard-mode-switch button { min-height: 28px; border: 0; border-radius: 5px; padding: 0 12px; background: transparent; color: #718590; font-size: 10px; font-weight: 700; cursor: pointer; transition: color .18s, background .18s, box-shadow .18s; }
 .dashboard-mode-switch button:hover { color: #177e9d; background: #edf6f8; }
 .dashboard-mode-switch button.active { color: #fff; background: #137e9f; box-shadow: 0 2px 5px rgba(19,126,159,.18); }
@@ -359,7 +359,6 @@ th.amount-col { text-align: right; }
   .topbar { gap: 20px; padding: 0 21px; }
   .brand-block { min-width: 255px; }
   .brand-logo { width: 128px; }
-  .dashboard-mode-switch button { padding: 0 10px; }
   .profile-tools { gap: 12px; }
   .workspace { padding: 24px 21px 14px; }
   .insight-grid { grid-template-columns: 1fr 1fr; }
@@ -374,6 +373,13 @@ th.amount-col { text-align: right; }
   .brand-title, .brand-divider { display: none; }
   .profile-copy { display: none; }
   .profile-tools { margin-left: 0; }
+  .filter-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 6px; }
+  .range-control { grid-column: 1 / -1; }
+  .filter-spacer, .last-updated { display: none; }
+  .period-switch button { padding: 0 8px; }
+  .dashboard-mode-switch { padding: 2px; }
+  .dashboard-mode-switch button { padding: 0 7px; }
+  .refresh-button { justify-self: end; }
   .workspace { padding-left: 16px; padding-right: 16px; }
   .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .monthly-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -387,21 +393,22 @@ th.amount-col { text-align: right; }
   .app-shell, .app-shell.activity-collapsed { display: block; padding-bottom: env(safe-area-inset-bottom); }
   .topbar { position: sticky; top: 0; z-index: 20; height: 60px; padding: 0 14px; gap: 12px; }
   .brand-logo { width: 127px; }
-  .dashboard-mode-switch { margin-left: auto; padding: 2px; }
-  .dashboard-mode-switch button { min-height: 26px; padding: 0 9px; font-size: 8px; }
   .profile-tools { margin-left: 0; gap: 7px; }
   .notification-button { height: 30px; width: 30px; }
   .profile-button { gap: 0; }
   .profile-button .avatar { width: 31px; height: 31px; font-size: 10px; }
   .profile-button > ion-icon { display: none; }
   .workspace { padding: 13px 14px calc(70px + env(safe-area-inset-bottom)); }
-  .filter-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-bottom: 5px; }
+  .filter-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 4px; margin-bottom: 5px; }
   .range-control { min-width: 0; grid-column: 1 / -1; height: 36px; font-size: 10px; }
   .filter-spacer { display: none; }
-  .period-switch { justify-self: start; height: 33px; }
-  .period-switch button { padding: 0 11px; font-size: 9px; }
+  .period-switch { justify-self: start; height: 33px; min-width: 0; gap: 1px; }
+  .period-switch button { padding: 0 4px; font-size: 8px; }
+  .dashboard-mode-switch { justify-self: start; padding: 2px; }
+  .dashboard-mode-switch button { min-height: 26px; padding: 0 5px; font-size: 8px; }
   .last-updated { display: none; }
-  .refresh-button { grid-column: 2; justify-self: end; height: 33px; }
+  .refresh-button { grid-column: 3; justify-self: end; width: 32px; height: 33px; padding: 0; justify-content: center; }
+  .refresh-button span { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
   .range-caption { margin-top: 4px; margin-bottom: 9px; font-size: 8px; }
   .custom-range { width: 100%; flex-wrap: wrap; }
   .custom-range label { flex: 1; justify-content: space-between; }
@@ -483,8 +490,8 @@ th.amount-col { text-align: right; }
 }
 @media (max-width: 370px) {
   .brand-logo { width: 112px; }
-  .dashboard-mode-switch button { padding: 0 7px; }
-  .period-switch button { padding: 0 8px; }
+  .dashboard-mode-switch button { padding: 0 4px; }
+  .period-switch button { padding: 0 3px; }
   .metric-card { padding: 9px 8px; }
   .metric-heading { font-size: 8px; }
   .metric-value { font-size: 23px; }

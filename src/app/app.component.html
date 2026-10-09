@@ -11,10 +11,6 @@
               <span>Your business, in good order.</span>
             </div>
           </div>
-          <div class="dashboard-mode-switch" role="group" aria-label="Choose dashboard">
-            <button [class.active]="dashboardMode === 'agent'" [attr.aria-pressed]="dashboardMode === 'agent'" (click)="setDashboardMode('agent')">Agent</button>
-            <button [class.active]="dashboardMode === 'agency'" [attr.aria-pressed]="dashboardMode === 'agency'" (click)="setDashboardMode('agency')">Agency</button>
-          </div>
           <div class="profile-tools">
             <button class="icon-button notification-button" aria-label="Open recent activity" (click)="openActivity()">
               <ion-icon name="notifications-outline"></ion-icon><i></i>
@@ -34,6 +30,10 @@
             </div>
             <div class="period-switch" role="group" aria-label="Dashboard date period">
               <button *ngFor="let item of periods" [class.active]="period === item" [attr.aria-pressed]="period === item" (click)="setPeriod(item)">{{ item }}</button>
+            </div>
+            <div class="dashboard-mode-switch" role="group" aria-label="Choose dashboard">
+              <button [class.active]="dashboardMode === 'agent'" [attr.aria-pressed]="dashboardMode === 'agent'" (click)="setDashboardMode('agent')">Agent</button>
+              <button [class.active]="dashboardMode === 'agency'" [attr.aria-pressed]="dashboardMode === 'agency'" (click)="setDashboardMode('agency')">Agency</button>
             </div>
             <div class="filter-spacer"></div>
             <div class="last-updated">Last updated <b>{{ lastUpdated }}</b></div>
