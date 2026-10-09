@@ -393,7 +393,7 @@ th.amount-col { text-align: right; }
   .app-shell, .app-shell.activity-collapsed { display: block; padding-bottom: env(safe-area-inset-bottom); }
   .topbar { position: sticky; top: 0; z-index: 20; height: 60px; padding: 0 14px; gap: 12px; }
   .brand-logo { width: 127px; }
-  .profile-tools { margin-left: 0; gap: 7px; }
+  .profile-tools { margin-left: auto; gap: 7px; flex-shrink: 0; }
   .notification-button { height: 30px; width: 30px; }
   .profile-button { gap: 0; }
   .profile-button .avatar { width: 31px; height: 31px; font-size: 10px; }
