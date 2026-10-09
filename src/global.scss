@@ -275,10 +275,11 @@ th.amount-col { text-align: right; }
 .activity-reopen { z-index: 12; position: fixed; right: 13px; bottom: 18px; border: 1px solid #d6e6e9; border-radius: 21px; background: white; box-shadow: 0 5px 18px rgba(35,71,86,.13); color: #137e9f; padding: 9px 13px; display: flex; align-items: center; gap: 7px; font-size: 10px; font-weight: 700; cursor: pointer; }
 .activity-reopen ion-icon { font-size: 15px; }
 .activity-reopen i { color: white; background: #dd866c; display: grid; place-items: center; border-radius: 50%; font: 700 8px var(--font-body); width: 16px; height: 16px; font-style: normal; }
-.toast-message { z-index: 20; position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: #193c50; color: #fff; border-radius: 7px; padding: 11px 15px; display: flex; align-items: center; gap: 9px; box-shadow: 0 8px 28px rgba(24,50,66,.2); font-size: 11px; animation: rise .2s ease both; white-space: nowrap; }
+.toast-message { z-index: 50; position: fixed; top: 88px; bottom: auto; left: 50%; transform: translateX(-50%); background: #193c50; color: #fff; border-radius: 7px; padding: 11px 15px; display: flex; align-items: center; gap: 9px; box-shadow: 0 8px 28px rgba(24,50,66,.2); font-size: 11px; animation: toast-arrive .2s ease both; white-space: nowrap; }
 .toast-message span { width: 6px; height: 6px; background: #57c2a2; border-radius: 50%; }
 .toast-message:empty { display: none; }
 @keyframes rise { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes toast-arrive { from { opacity: 0; transform: translate(-50%, -6px); } to { opacity: 1; transform: translate(-50%, 0); } }
 @keyframes reveal { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes rotate { to { transform: rotate(360deg); } }
 @keyframes button-spin { to { transform: rotate(360deg); } }
@@ -386,7 +387,7 @@ th.amount-col { text-align: right; }
   .activity-collapsed .activity-rail.rail-open { transform: translateX(0); pointer-events: auto; }
   .activity-header { height: 62px; min-height: 62px; }
   .activity-reopen { top: auto; bottom: 18px; right: 14px; }
-  .toast-message { bottom: calc(24px + env(safe-area-inset-bottom)); max-width: calc(100vw - 30px); white-space: normal; font-size: 10px; }
+  .toast-message { top: 70px; bottom: auto; max-width: calc(100vw - 30px); white-space: normal; font-size: 10px; }
 }
 @media (max-width: 370px) {
   .brand-logo { width: 112px; }
