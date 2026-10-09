@@ -40,13 +40,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(22, 143, 192
 .brand-title { display: flex; flex-direction: column; gap: 3px; }
 .brand-title strong { text-transform: uppercase; letter-spacing: .055em; font: 800 11px var(--font-display); }
 .brand-title span { color: var(--muted); font-size: 10px; }
-.primary-nav { display: flex; height: 100%; align-items: center; gap: 29px; flex: 1; }
-.nav-link { height: 100%; display: flex; align-items: center; gap: 8px; position: relative; padding: 0; background: transparent; border: 0; color: #738793; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-.nav-link ion-icon { font-size: 15px; }
-.nav-link.selected { color: var(--teal); }
-.nav-link.selected:after { content: ''; position: absolute; bottom: -1px; height: 2px; left: 0; right: 0; background: var(--teal); }
-.nav-mark { height: 6px; width: 6px; background: var(--teal); border-radius: 50%; }
-.profile-tools { display: flex; align-items: center; gap: 20px; }
+.profile-tools { display: flex; align-items: center; gap: 20px; margin-left: auto; }
 .icon-button { border: 0; border-radius: 50%; background: transparent; color: #657c8a; display: inline-grid; place-items: center; cursor: pointer; transition: background .2s, color .2s; }
 .icon-button:hover { background: #edf5f6; color: var(--teal); }
 .notification-button { width: 32px; height: 32px; font-size: 18px; position: relative; }
@@ -57,16 +51,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(22, 143, 192
 .profile-copy b { font-size: 11px; font-weight: 700; }
 .profile-copy small { color: var(--muted); font-size: 10px; }
 .profile-button ion-icon { color: #8b9ba4; font-size: 14px; margin-left: 3px; }
-.mobile-menu { display: none; }
-.workspace { max-width: 1600px; padding: 27px 30px 15px; margin: 0 auto; }
-.page-heading { display: flex; align-items: flex-end; justify-content: space-between; margin: 0 1px 20px; }
-.eyebrow { font: 700 9px var(--font-display); letter-spacing: .15em; color: #718794; margin: 0 0 8px; }
-.eyebrow span { color: #afbdc3; padding: 0 5px; }
-h1 { font: 700 26px/1.2 var(--font-display); letter-spacing: -.045em; margin: 0; color: #193247; }
-.heading-period { color: #1a9ac0; }
-.subtitle { color: #758995; font-size: 12px; margin: 7px 0 0; }
-.date-stamp { color: #80919b; font-size: 10px; padding: 0 0 5px; display: flex; align-items: center; gap: 8px; }
-.live-dot { width: 6px; height: 6px; border-radius: 50%; background: #45b89c; box-shadow: 0 0 0 3px rgba(69,184,156,.12); }
+.workspace { max-width: 1600px; padding: 18px 30px 15px; margin: 0 auto; }
 .filter-row { min-height: 42px; display: flex; align-items: center; gap: 11px; margin-bottom: 6px; }
 .range-control { background: #fff; border: 1px solid var(--line); border-radius: 7px; color: #506879; font-size: 10px; height: 34px; min-width: 234px; padding: 0 11px; display: flex; align-items: center; gap: 9px; box-shadow: 0 1px 2px rgba(24, 49, 64, .025); }
 .range-control > ion-icon:first-child { color: #1788ad; font-size: 15px; }
@@ -292,7 +277,6 @@ th.amount-col { text-align: right; }
   .topbar { gap: 20px; padding: 0 21px; }
   .brand-block { min-width: 255px; }
   .brand-logo { width: 128px; }
-  .primary-nav { gap: 17px; }
   .profile-tools { gap: 12px; }
   .workspace { padding: 24px 21px 14px; }
   .insight-grid { grid-template-columns: 1fr 1fr; }
@@ -304,7 +288,6 @@ th.amount-col { text-align: right; }
   .app-shell { grid-template-columns: minmax(0, 1fr) 260px; }
   .brand-block { min-width: 0; }
   .brand-title, .brand-divider { display: none; }
-  .primary-nav { gap: 14px; }
   .profile-copy { display: none; }
   .workspace { padding-left: 16px; padding-right: 16px; }
   .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -317,23 +300,13 @@ th.amount-col { text-align: right; }
 @media (max-width: 700px) {
   .app-shell, .app-shell.activity-collapsed { display: block; padding-bottom: env(safe-area-inset-bottom); }
   .topbar { height: 60px; padding: 0 14px; gap: 12px; }
-  .mobile-menu { display: inline-grid; width: 32px; height: 32px; font-size: 20px; flex: 0 0 auto; }
   .brand-logo { width: 127px; }
-  .primary-nav { position: absolute; top: 59px; left: 0; right: 0; height: auto; display: none; padding: 7px 13px 12px; background: #fff; border-bottom: 1px solid var(--line); box-shadow: 0 8px 15px rgba(24,52,65,.08); z-index: 10; }
-  .primary-nav.nav-open { display: flex; animation: reveal .18s ease both; }
-  .nav-link { height: 38px; padding: 0 10px; border-radius: 5px; font-size: 11px; }
-  .nav-link.selected:after { display: none; }
-  .nav-link.selected { background: #eff7f8; }
   .profile-tools { margin-left: auto; gap: 10px; }
   .notification-button { height: 30px; width: 30px; }
   .profile-button { gap: 0; }
   .profile-button .avatar { width: 31px; height: 31px; font-size: 10px; }
   .profile-button > ion-icon { display: none; }
-  .workspace { padding: 21px 14px 18px; }
-  .page-heading { display: block; margin-bottom: 16px; }
-  h1 { font-size: 24px; }
-  .subtitle { font-size: 11px; max-width: 330px; line-height: 1.45; }
-  .date-stamp { margin-top: 12px; padding: 0; font-size: 9px; }
+  .workspace { padding: 13px 14px 18px; }
   .filter-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-bottom: 5px; }
   .range-control { min-width: 0; grid-column: 1 / -1; height: 36px; font-size: 10px; }
   .period-switch { justify-self: start; height: 33px; }

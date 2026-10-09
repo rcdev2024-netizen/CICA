@@ -30,7 +30,6 @@ export class AppComponent {
   pageSize = 5;
   expandedPolicy = '';
   activityOpen = typeof window !== 'undefined' && window.matchMedia('(min-width: 701px)').matches;
-  mobileNavOpen = false;
   refreshing = false;
   lastUpdated = 'Jul 31, 2025 · 10:24 AM';
   toast = '';
