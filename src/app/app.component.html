@@ -42,7 +42,7 @@
             <label>To <input type="date" [(ngModel)]="customEnd" aria-label="Custom end date"></label>
             <button class="apply-range" (click)="applyCustomRange()">Apply range</button>
           </div>
-          <div class="range-caption"><span class="sample-tag"><span></span> DEMO DATA</span><span>Showing <b>{{ period === 'Custom' ? formatDate(customStart) + ' – ' + formatDate(customEnd) : period }}</b> performance</span></div>
+          
 
           <section class="kpi-grid" aria-label="Policy performance">
             <article class="metric-card entrance" *ngFor="let kpi of kpis; let i = index" [style.--delay]="(i * 65) + 'ms'">
