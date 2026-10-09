@@ -38,7 +38,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(22, 143, 192
 .app-shell { min-height: 100dvh; display: grid; grid-template-columns: minmax(0, 1fr) 296px; background: var(--paper); transition: grid-template-columns .28s ease; }
 .app-shell.activity-collapsed { grid-template-columns: minmax(0, 1fr) 0; }
 .dashboard-area { min-width: 0; }
-.topbar { height: 76px; display: flex; align-items: center; padding: 0 30px; gap: 30px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 76' preserveAspectRatio='none'%3E%3Cpath d='M0 48 C180 28 350 67 540 47 S900 32 1080 50 S1270 65 1440 40 V76 H0 Z' fill='%23eaf7f8' fill-opacity='.42'/%3E%3Cpath d='M0 59 C190 43 360 75 550 57 S900 44 1090 61 S1270 72 1440 53 V76 H0 Z' fill='%23d7eff1' fill-opacity='.32'/%3E%3Cpath d='M0 48 C180 28 350 67 540 47 S900 32 1080 50 S1270 65 1440 40' fill='none' stroke='%23c7e8ec' stroke-opacity='.55' stroke-width='1'/%3E%3C/svg%3E") center / 100% 100% no-repeat; border-bottom: 1px solid var(--line); position: relative; z-index: 10; }
+.topbar { height: 76px; display: flex; align-items: center; padding: 0 30px; gap: 30px; background: #fff; border-bottom: 1px solid var(--line); position: relative; z-index: 10; }
 .brand-block { display: flex; align-items: center; min-width: 284px; gap: 17px; }
 .brand-logo { width: 143px; height: auto; display: block; }
 .brand-divider { height: 35px; width: 1px; background: #dce5e8; }
