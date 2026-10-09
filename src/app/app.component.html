@@ -174,7 +174,7 @@
         <button class="all-activity" (click)="notify('You’re viewing all recent sample activity')">View all activity <ion-icon name="chevron-forward-outline"></ion-icon></button>
       </aside>
       <button class="activity-reopen" *ngIf="!activityOpen" (click)="toggleActivity()" aria-label="Open recent activity"><ion-icon name="notifications-outline"></ion-icon><span>Activity</span><i>8</i></button>
-      <div class="toast-message" *ngIf="toast" role="status"><span></span>{{ toast }}</div>
     </main>
   </ion-content>
+  <div class="toast-message" *ngIf="toast" role="status"><span></span>{{ toast }}</div>
 </ion-app>
