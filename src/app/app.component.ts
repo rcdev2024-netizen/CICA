@@ -141,7 +141,10 @@ export class AppComponent {
     this.refreshing = true;
     setTimeout(() => {
       this.refreshing = false;
-      this.lastUpdated = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      const updatedAt = new Date();
+      const date = updatedAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const time = updatedAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      this.lastUpdated = `${date} · ${time}`;
       this.notify('Dashboard refreshed with the latest sample data');
     }, 700);
   }
