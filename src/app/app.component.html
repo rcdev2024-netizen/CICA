@@ -7,16 +7,20 @@
             <img src="assets/cica-life-logo.png" alt="CICA Life of America" class="brand-logo">
             <span class="brand-divider"></span>
             <div class="brand-title">
-              <strong>Agent dashboard</strong>
+              <strong>{{ dashboardMode === 'agency' ? 'Agency dashboard' : 'Agent dashboard' }}</strong>
               <span>Your business, in good order.</span>
             </div>
+          </div>
+          <div class="dashboard-mode-switch" role="group" aria-label="Choose dashboard">
+            <button [class.active]="dashboardMode === 'agent'" [attr.aria-pressed]="dashboardMode === 'agent'" (click)="setDashboardMode('agent')">Agent</button>
+            <button [class.active]="dashboardMode === 'agency'" [attr.aria-pressed]="dashboardMode === 'agency'" (click)="setDashboardMode('agency')">Agency</button>
           </div>
           <div class="profile-tools">
             <button class="icon-button notification-button" aria-label="Open recent activity" (click)="openActivity()">
               <ion-icon name="notifications-outline"></ion-icon><i></i>
             </button>
-            <button class="profile-button" aria-label="Agent profile: Gina Graber" (click)="notify('Signed in as Gina Graber · Agent')">
-              <span class="avatar">GG</span><span class="profile-copy"><b>Gina Graber</b><small>Agent</small></span><ion-icon name="chevron-down-outline"></ion-icon>
+            <button class="profile-button" aria-label="Profile: Gina Graber" (click)="notify('Signed in as Gina Graber')">
+              <span class="avatar">GG</span><span class="profile-copy"><b>Gina Graber</b><small>{{ dashboardMode === 'agency' ? 'Agency admin' : 'Agent' }}</small></span><ion-icon name="chevron-down-outline"></ion-icon>
             </button>
           </div>
         </header>
@@ -42,13 +46,32 @@
             <label>To <input type="date" [(ngModel)]="customEnd" aria-label="Custom end date"></label>
             <button class="apply-range" (click)="applyCustomRange()">Apply range</button>
           </div>
-          
+          <div class="agency-filter-row" *ngIf="dashboardMode === 'agency'">
+            <label class="production-select">
+              <span>Production view</span>
+              <select [(ngModel)]="productionScope" (ngModelChange)="productionScopeChanged()" aria-label="Production view">
+                <option value="overall">Overall production</option>
+                <option value="agency">Agency production</option>
+                <option value="agent">Agent production</option>
+              </select>
+            </label>
+            <label class="agent-name-filter">
+              <span>Agent name</span>
+              <span class="agent-search-input"><ion-icon name="search-outline"></ion-icon><input type="search" [(ngModel)]="agentNameFilter" (ngModelChange)="agencyFiltersChanged()" placeholder="Search an agent..." aria-label="Filter dashboard by agent name"></span>
+            </label>
+            <span class="agency-filter-note">{{ productionScopeLabel }} · {{ scopedRecords.length }} matching policies</span>
+          </div>
 
           <section class="kpi-grid" aria-label="Policy performance">
-            <article class="metric-card entrance" *ngFor="let kpi of kpis; let i = index" [style.--delay]="(i * 65) + 'ms'">
+            <article class="metric-card entrance" *ngFor="let kpi of dashboardKpis; let i = index" [style.--delay]="(i * 65) + 'ms'">
               <div class="metric-heading"><span class="metric-icon" [ngClass]="kpi.tone"><ion-icon [name]="kpi.icon"></ion-icon></span><span>{{ kpi.title }}</span><button class="tiny-menu" [attr.aria-label]="'More about ' + kpi.title" (click)="notify(kpi.title + ' for ' + period + ' performance')"><ion-icon name="ellipsis-horizontal"></ion-icon></button></div>
               <div class="metric-value">{{ kpi.value }}</div>
-              <div class="metric-footer"><span class="change" [class.negative]="kpi.direction === 'down'"><ion-icon [name]="kpi.direction === 'up' ? 'arrow-up-outline' : 'arrow-down-outline'"></ion-icon>{{ kpi.change }}</span><span class="vs-year">vs. last year</span><svg class="sparkline" viewBox="0 0 84 34" role="img" [attr.aria-label]="kpi.title + ' trend line'" [attr.title]="kpi.title + ': ' + kpi.value + ' (' + kpi.change + ' vs. last year)'"><polyline [attr.points]="kpi.points"></polyline></svg></div>
+              <div class="metric-footer">
+                <span class="change" [class.negative]="kpi.direction === 'down'" *ngIf="dashboardMode === 'agent'"><ion-icon [name]="kpi.direction === 'up' ? 'arrow-up-outline' : 'arrow-down-outline'"></ion-icon>{{ kpi.change }}</span>
+                <span class="change agency-current" *ngIf="dashboardMode === 'agency'">In range</span>
+                <span class="vs-year">{{ dashboardMode === 'agency' ? 'Sample data' : 'vs. last year' }}</span>
+                <svg class="sparkline" viewBox="0 0 84 34" role="img" [attr.aria-label]="kpi.title + ' trend line'" [attr.title]="kpi.title + ': ' + kpi.value + (dashboardMode === 'agency' ? ' for ' + period : ' (' + kpi.change + ' vs. last year)')"><polyline [attr.points]="kpi.points"></polyline></svg>
+              </div>
             </article>
           </section>
 
@@ -97,12 +120,42 @@
             </article>
           </section>
 
-          <section class="monthly-grid" aria-label="Operational monthly summaries">
+          <section class="monthly-grid" aria-label="Operational monthly summaries" *ngIf="dashboardMode === 'agent'">
             <article class="panel monthly-card" *ngFor="let item of monthly; let i = index">
               <div class="monthly-top"><span class="panel-icon" [ngClass]="item.tone + '-icon'"><ion-icon [name]="item.icon"></ion-icon></span><button class="text-action" (click)="notify(item.title + ' details for ' + period)">View details <ion-icon name="chevron-forward-outline"></ion-icon></button></div>
               <h2>{{ item.title }}</h2>
               <div class="monthly-stat"><b>{{ item.value }}</b><span class="change" [class.negative]="item.change.startsWith('-')"><ion-icon [name]="item.change.startsWith('-') ? 'arrow-down-outline' : 'arrow-up-outline'"></ion-icon>{{ item.change }}</span><small>vs. last year</small></div>
               <div class="bar-chart" aria-label="Eight month summary"><div class="bar-column" *ngFor="let height of item.bars; let j = index" [attr.data-tooltip]="item.title + ' · ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'][j] + ' · relative value ' + height" [attr.aria-label]="item.title + ', ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'][j] + ': relative value ' + height" tabindex="0"><i [style.height.%]="height * 1.35"></i><small>{{ ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'][j] }}</small></div></div>
+            </article>
+          </section>
+          <section class="agency-monthly-grid" aria-label="Agency operating trends" *ngIf="dashboardMode === 'agency'">
+            <article class="panel agency-month-card" *ngFor="let item of agencyMonthlyCards">
+              <div class="agency-month-heading">
+                <span class="panel-icon" [ngClass]="item.tone + '-icon'">
+                  <ion-icon [name]="item.title === 'Policies on hold' ? 'time-outline' : item.title === 'Policies past due' ? 'alert-circle-outline' : item.title === 'Billing notifications' ? 'notifications-outline' : 'wallet-outline'"></ion-icon>
+                </span>
+                <h2>{{ item.title }}</h2>
+              </div>
+              <strong class="agency-month-total">{{ item.value }}</strong>
+              <div class="agency-month-bars">
+                <div class="agency-month-bar" *ngFor="let month of item.months; let i = index">
+                  <span>{{ month }}</span>
+                  <i><b [style.width.%]="item.bars[i] * 1.6"></b></i>
+                  <small>{{ item.bars[i] }}</small>
+                </div>
+              </div>
+            </article>
+            <article class="panel agency-month-card agency-data-card">
+              <div class="agency-month-heading">
+                <span class="panel-icon blue-icon"><ion-icon name="people-outline"></ion-icon></span>
+                <h2>Agent data</h2>
+              </div>
+              <div class="agency-data-metrics">
+                <div class="agency-data-metric" *ngFor="let metric of agencyDataMetrics">
+                  <b>{{ metric.value }}</b><span>{{ metric.label }}</span>
+                </div>
+              </div>
+              <p>Roster totals for the selected production view</p>
             </article>
           </section>
 
@@ -152,6 +205,41 @@
             </div>
             <div class="table-footer"><span>Showing <b>{{ firstResult }}–{{ lastResult }}</b> of {{ filteredRecords.length }} records <em>·</em> Sample data</span>
               <div class="pagination" aria-label="Business register pages"><button aria-label="Previous page" [disabled]="page === 1" (click)="goPage(page - 1)"><ion-icon name="chevron-back-outline"></ion-icon></button><button *ngFor="let p of pageNumbers" [class.current]="page === p" [attr.aria-label]="'Page ' + p" (click)="goPage(p)">{{ p }}</button><button aria-label="Next page" [disabled]="page === pageCount" (click)="goPage(page + 1)"><ion-icon name="chevron-forward-outline"></ion-icon></button></div>
+            </div>
+          </section>
+          <section class="panel roster-panel" *ngIf="dashboardMode === 'agency'">
+            <div class="roster-panel-heading">
+              <span>Agent roster</span>
+              <small>{{ agencyRosterRows.length }} agents · Sample data</small>
+            </div>
+            <div class="roster-table-wrap">
+              <table class="roster-table">
+                <thead>
+                  <tr>
+                    <th>Agent number</th>
+                    <th>Agent name</th>
+                    <th>Upline hierarchy</th>
+                    <th>Contract code</th>
+                    <th>Commission percentage</th>
+                    <th>Level</th>
+                    <th>Advance vs. as-earned</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let agent of agencyRosterRows">
+                    <td>{{ agent.agentNumber }}</td>
+                    <td class="agent-name">{{ agent.agentName }}</td>
+                    <td>{{ agent.uplineHierarchy }}</td>
+                    <td>{{ agent.contractCode }}</td>
+                    <td>{{ agent.commissionPercentage }}%</td>
+                    <td>{{ agent.level }}</td>
+                    <td><span class="roster-contract-type" [class.advance]="agent.advanceVsAsEarned === 'Advance'">{{ agent.advanceVsAsEarned }}</span></td>
+                  </tr>
+                  <tr *ngIf="agencyRosterRows.length === 0">
+                    <td colspan="7"><div class="roster-empty">No agents match this production view. Enter an agent name or choose another view.</div></td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </section>
           <footer class="dashboard-footer"><span>© 2026 CICA Life of America</span><span>Team Gina | Kevin Demo 2026</span><span>Private agent workspace</span></footer>

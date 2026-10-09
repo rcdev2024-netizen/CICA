@@ -11,7 +11,17 @@ import {
   notificationsOutline, pauseCircleOutline, peopleOutline, refreshOutline, searchOutline,
   shieldCheckmarkOutline, timeOutline, trendingUpOutline, walletOutline
 } from 'ionicons/icons';
-import { MockDataService, PolicyRecord } from './mock-data.service';
+import { AgentRosterRecord, MockDataService, PolicyRecord } from './mock-data.service';
+
+type DashboardKpi = {
+  title: string;
+  value: string;
+  change: string;
+  direction: 'up' | 'down';
+  icon: string;
+  tone: string;
+  points: string;
+};
 
 @Component({
   selector: 'cica-root',
@@ -20,6 +30,9 @@ import { MockDataService, PolicyRecord } from './mock-data.service';
   templateUrl: './app.component.html'
 })
 export class AppComponent {
+  dashboardMode: 'agent' | 'agency' = 'agent';
+  productionScope: 'overall' | 'agency' | 'agent' = 'agency';
+  agentNameFilter = '';
   period = 'YTD';
   customStart = '2026-01-01';
   customEnd = '2026-07-31';
@@ -37,7 +50,7 @@ export class AppComponent {
   private toastTimer?: ReturnType<typeof setTimeout>;
 
   readonly periods = ['Month', 'Quarter', 'YTD', 'Custom'];
-  readonly kpis = [
+  readonly kpis: DashboardKpi[] = [
     { title: 'Active policies', value: '2,418', change: '+12%', direction: 'up', icon: 'people-outline', tone: 'blue', points: '0,29 12,25 24,28 36,15 48,18 60,5 72,10 84,0' },
     { title: 'Issued policies', value: '1,285', change: '+10%', direction: 'up', icon: 'document-text-outline', tone: 'green', points: '0,30 12,26 24,25 36,19 48,23 60,10 72,12 84,1' },
     { title: 'Inactive policies', value: '318', change: '-6%', direction: 'down', icon: 'shield-checkmark-outline', tone: 'amber', points: '0,24 12,18 24,21 36,9 48,11 60,2 72,7 84,0' },
@@ -81,7 +94,7 @@ export class AppComponent {
 
   get filteredRecords(): PolicyRecord[] {
     const term = this.searchTerm.trim().toLowerCase();
-    const filtered = this.data.records.filter((r) =>
+    const filtered = this.scopedRecords.filter((r) =>
       !term || [r.policy, r.agentId, r.agent, r.email, r.line, r.status, r.client].some((v) => v.toLowerCase().includes(term))
     );
     return filtered.sort((a, b) => {
@@ -90,6 +103,86 @@ export class AppComponent {
       const result = typeof av === 'number' && typeof bv === 'number' ? av - bv : String(av).localeCompare(String(bv));
       return this.sortDirection === 'asc' ? result : -result;
     });
+  }
+  get scopedRecords(): PolicyRecord[] { return this.applyProductionScope(this.data.records); }
+  get allScopedRecords(): PolicyRecord[] { return this.applyProductionScope(this.data.records, false); }
+  get dashboardKpis(): DashboardKpi[] {
+    if (this.dashboardMode === 'agent') return this.kpis;
+    const records = this.scopedRecords;
+    const producingAgents = new Set(
+      records.filter((record) => record.status === 'Active' || record.status === 'Submitted').map((record) => record.agentId)
+    ).size;
+    const commissionTotal = records.reduce((sum, record) => {
+      const agent = this.data.agentRoster.find((item) => item.agentNumber === record.agentId);
+      return sum + record.premium * ((agent?.commissionPercentage ?? 0) / 100);
+    }, 0);
+    return [
+      { title: 'Policies in period', value: String(records.length), change: 'Sample', direction: 'up', icon: 'document-text-outline', tone: 'blue', points: '0,29 12,25 24,27 36,16 48,17 60,10 72,11 84,2' },
+      { title: 'Face amount', value: this.formatCompactMoney(records.reduce((sum, record) => sum + record.amount, 0)), change: 'Sample', direction: 'up', icon: 'wallet-outline', tone: 'green', points: '0,30 12,26 24,25 36,20 48,22 60,12 72,8 84,1' },
+      { title: 'Producing agents', value: String(producingAgents), change: 'Sample', direction: 'up', icon: 'people-outline', tone: 'amber', points: '0,25 12,19 24,21 36,16 48,13 60,9 72,7 84,1' },
+      { title: 'Estimated commissions', value: this.formatCompactMoney(commissionTotal), change: 'Sample', direction: 'up', icon: 'trending-up-outline', tone: 'violet', points: '0,29 12,23 24,26 36,17 48,18 60,10 72,12 84,2' }
+    ];
+  }
+  get agencyMonthlyCards() {
+    const records = this.scopedRecords;
+    const allRecords = this.allScopedRecords;
+    const periodFactor = allRecords.length ? records.length / allRecords.length : 0;
+    const holdCount = records.filter((record) => record.status === 'On hold').length;
+    const pastDue = Math.round(31 * periodFactor);
+    const billingNotifications = Math.round(182 * periodFactor);
+    const commission = records.reduce((sum, record) => {
+      const agent = this.data.agentRoster.find((item) => item.agentNumber === record.agentId);
+      return sum + record.premium * ((agent?.commissionPercentage ?? 0) / 100);
+    }, 0);
+    return [
+      { title: 'Policies on hold', value: String(holdCount), tone: 'amber', months: ['Mar', 'Apr', 'May', 'Jun', 'Jul'], bars: [18, 25, 20, 30, 24].map((value) => Math.round(value * periodFactor)) },
+      { title: 'Policies past due', value: String(pastDue), tone: 'coral', months: ['Mar', 'Apr', 'May', 'Jun', 'Jul'], bars: [35, 42, 36, 49, 40].map((value) => Math.round(value * periodFactor)) },
+      { title: 'Billing notifications', value: String(billingNotifications), tone: 'teal', months: ['Mar', 'Apr', 'May', 'Jun', 'Jul'], bars: [26, 37, 31, 43, 36].map((value) => Math.round(value * periodFactor)) },
+      { title: 'Commissions', value: this.formatCompactMoney(commission), tone: 'blue', months: ['Mar', 'Apr', 'May', 'Jun', 'Jul'], bars: [24, 31, 38, 34, 46].map((value) => Math.round(value * periodFactor)) }
+    ];
+  }
+  get agencyRosterRows(): AgentRosterRecord[] {
+    if (this.dashboardMode !== 'agency') return [];
+    const name = this.agentNameFilter.trim().toLowerCase();
+    return this.data.agentRoster.filter((agent) => {
+      if (this.productionScope === 'agency' && !agent.agencyMember) return false;
+      if (this.productionScope === 'agent' && !name) return false;
+      return !name || [agent.agentName, agent.agentNumber].some((value) => value.toLowerCase().includes(name));
+    });
+  }
+  get agencyDataMetrics(): { label: string; value: number }[] {
+    const producingAgentIds = new Set(
+      this.scopedRecords.filter((record) => record.status === 'Active' || record.status === 'Submitted').map((record) => record.agentId)
+    );
+    return [
+      { label: '# of Agents', value: this.agencyRosterRows.length },
+      { label: '# Producing Agents', value: producingAgentIds.size },
+      { label: '# of Downlines', value: this.agencyRosterRows.filter((agent) => agent.agencyMember).length }
+    ];
+  }
+  get productionScopeLabel(): string {
+    if (this.productionScope === 'overall') return 'Overall production';
+    if (this.productionScope === 'agency') return 'Agency production';
+    return 'Agent production';
+  }
+  private applyProductionScope(records: PolicyRecord[], applyDateRange = true): PolicyRecord[] {
+    if (this.dashboardMode !== 'agency') {
+      return applyDateRange ? records.filter((record) => this.isWithinDateRange(record)) : records;
+    }
+    const name = this.agentNameFilter.trim().toLowerCase();
+    const rosterById = new Map(this.data.agentRoster.map((agent) => [agent.agentNumber, agent]));
+    if (this.productionScope === 'agent' && !name) return [];
+    return records.filter((record) => {
+      const rosterAgent = rosterById.get(record.agentId);
+      if (this.productionScope === 'agency' && !rosterAgent?.agencyMember) return false;
+      const matchesName = !name || [record.agent, record.agentId, record.email].some((value) => value.toLowerCase().includes(name));
+      return matchesName && (!applyDateRange || this.isWithinDateRange(record));
+    });
+  }
+  private isWithinDateRange(record: PolicyRecord): boolean {
+    const issued = new Date(record.issued);
+    const key = `${issued.getFullYear()}-${String(issued.getMonth() + 1).padStart(2, '0')}-${String(issued.getDate()).padStart(2, '0')}`;
+    return (!this.customStart || key >= this.customStart) && (!this.customEnd || key <= this.customEnd);
   }
   get pageCount(): number { return Math.max(1, Math.ceil(this.filteredRecords.length / this.pageSize)); }
   get averagePersistence(): number {
@@ -112,6 +205,7 @@ export class AppComponent {
       this.customStart = '2026-01-01';
       this.customEnd = '2026-07-31';
     }
+    this.page = 1;
     this.notify(`${value === 'Custom' ? 'Choose a date range' : value + ' view selected'}`);
   }
   applyCustomRange(): void {
@@ -119,6 +213,7 @@ export class AppComponent {
       this.notify('Choose a valid date range');
       return;
     }
+    this.page = 1;
     this.notify(`Showing ${this.formatDate(this.customStart)} – ${this.formatDate(this.customEnd)}`);
   }
   formatDate(value: string): string {
@@ -132,6 +227,14 @@ export class AppComponent {
     this.page = 1;
   }
   searchChanged(): void { this.page = 1; }
+  agencyFiltersChanged(): void { this.page = 1; this.expandedPolicy = ''; }
+  setDashboardMode(mode: 'agent' | 'agency'): void {
+    this.dashboardMode = mode;
+    this.page = 1;
+    this.expandedPolicy = '';
+    this.notify(`${mode === 'agency' ? 'Agency' : 'Agent'} dashboard selected`);
+  }
+  productionScopeChanged(): void { this.agencyFiltersChanged(); }
   goPage(next: number): void { this.page = Math.min(this.pageCount, Math.max(1, next)); }
   toggleExpanded(policy: string): void { this.expandedPolicy = this.expandedPolicy === policy ? '' : policy; }
   toggleActivity(): void { this.activityOpen = !this.activityOpen; }
@@ -154,7 +257,7 @@ export class AppComponent {
     const csv = [headers, ...rows].map((row) => row.map((v) => `"${String(v).replaceAll('"', '""')}"`).join(',')).join('\r\n');
     const link = document.createElement('a');
     link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-    link.download = `cica-life-business-register-${this.period.toLowerCase()}.csv`;
+    link.download = `cica-life-${this.dashboardMode}-business-register-${this.period.toLowerCase()}.csv`;
     link.click();
     URL.revokeObjectURL(link.href);
     this.notify(`${rows.length} business records exported`);
@@ -165,5 +268,10 @@ export class AppComponent {
     this.toastTimer = setTimeout(() => this.toast = '', 2600);
   }
   formatMoney(value: number): string { return '$' + value.toLocaleString('en-US'); }
+  formatCompactMoney(value: number): string {
+    if (value >= 1_000_000) return '$' + (value / 1_000_000).toFixed(1) + 'M';
+    if (value >= 1_000) return '$' + (value / 1_000).toFixed(1) + 'K';
+    return '$' + Math.round(value).toLocaleString('en-US');
+  }
   trackByPolicy(_index: number, row: PolicyRecord): string { return row.policy; }
 }

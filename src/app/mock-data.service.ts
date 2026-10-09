@@ -15,6 +15,17 @@ export interface PolicyRecord {
   state: string;
 }
 
+export interface AgentRosterRecord {
+  agentNumber: string;
+  agentName: string;
+  uplineHierarchy: string;
+  contractCode: string;
+  commissionPercentage: number;
+  level: string;
+  advanceVsAsEarned: 'Advance' | 'As-Earned';
+  agencyMember: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class MockDataService {
   readonly records: PolicyRecord[] = [
@@ -36,6 +47,14 @@ export class MockDataService {
     { policy: 'B-100188', agentId: 'A-1023', agent: 'Maria Santos', email: 'maria.santos@cicalife.com', line: 'Life Insurance', amount: 685000, status: 'Active', client: 'Santos Financial Services', issued: 'Jul 27, 2026', premium: 138, billing: 'Monthly', state: 'California' },
     { policy: 'B-100193', agentId: 'A-1063', agent: 'David Garcia', email: 'david.garcia@cicalife.com', line: 'Health', amount: 330000, status: 'Submitted', client: 'Sonoran Family Care', issued: 'Jul 29, 2026', premium: 82, billing: 'Monthly', state: 'Arizona' },
     { policy: 'B-100201', agentId: 'A-1046', agent: 'Lisa Tan', email: 'lisa.tan@cicalife.com', line: 'Life Insurance', amount: 590000, status: 'Active', client: 'Silverline Ventures', issued: 'Jul 31, 2026', premium: 119, billing: 'Monthly', state: 'Nevada' }
+  ];
+
+  readonly agentRoster: AgentRosterRecord[] = [
+    { agentNumber: 'A-1023', agentName: 'Maria Santos', uplineHierarchy: 'Gina Graber / West Team', contractCode: 'CICA-125', commissionPercentage: 80, level: 'Senior', advanceVsAsEarned: 'As-Earned', agencyMember: true },
+    { agentNumber: 'A-1058', agentName: 'John Apodaca', uplineHierarchy: 'Gina Graber / West Team', contractCode: 'CICA-110', commissionPercentage: 75, level: 'Producer', advanceVsAsEarned: 'Advance', agencyMember: true },
+    { agentNumber: 'A-1063', agentName: 'David Garcia', uplineHierarchy: 'Gina Graber / Southwest', contractCode: 'CICA-125', commissionPercentage: 80, level: 'Senior', advanceVsAsEarned: 'As-Earned', agencyMember: true },
+    { agentNumber: 'A-1046', agentName: 'Lisa Tan', uplineHierarchy: 'Gina Graber / West Team', contractCode: 'CICA-100', commissionPercentage: 70, level: 'Producer', advanceVsAsEarned: 'Advance', agencyMember: true },
+    { agentNumber: 'A-1082', agentName: 'Sophia Cruz', uplineHierarchy: 'Partner Agency / Florida', contractCode: 'CICA-125', commissionPercentage: 80, level: 'Senior', advanceVsAsEarned: 'As-Earned', agencyMember: false }
   ];
 
   readonly activities = [
