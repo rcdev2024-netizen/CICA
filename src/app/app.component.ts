@@ -124,6 +124,7 @@ export class AppComponent {
   goPage(next: number): void { this.page = Math.min(this.pageCount, Math.max(1, next)); }
   toggleExpanded(policy: string): void { this.expandedPolicy = this.expandedPolicy === policy ? '' : policy; }
   toggleActivity(): void { this.activityOpen = !this.activityOpen; }
+  openActivity(): void { this.activityOpen = true; }
   refresh(): void {
     if (this.refreshing) return;
     this.refreshing = true;
