@@ -27,6 +27,10 @@
 body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--paper); font-family: var(--font-body); }
 button, input { font: inherit; }
 button { color: inherit; }
+button.is-clicking { position: relative; color: transparent !important; }
+button.activity-reopen.is-clicking { position: fixed; }
+button.is-clicking > * { visibility: hidden; }
+button.is-clicking::after { content: ''; position: absolute; inset: 50% auto auto 50%; width: 12px; height: 12px; margin: -7px 0 0 -7px; border: 2px solid rgba(19,126,159,.22); border-top-color: #137e9f; border-radius: 50%; animation: button-spin .65s linear infinite; }
 ion-app { background: var(--paper); }
 ion-content { --background: var(--paper); }
 button:focus-visible, input:focus-visible { outline: 3px solid rgba(22, 143, 192, .45); outline-offset: 2px; }
@@ -268,6 +272,7 @@ th.amount-col { text-align: right; }
 @keyframes rise { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes reveal { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes rotate { to { transform: rotate(360deg); } }
+@keyframes button-spin { to { transform: rotate(360deg); } }
 @keyframes turn-in { from { transform: rotate(-25deg) scale(.9); opacity: .7; } to { transform: rotate(0) scale(1); opacity: 1; } }
 @keyframes draw-line { from { stroke-dashoffset: 600; opacity: .45; } to { stroke-dashoffset: 0; opacity: 1; } }
 @keyframes bar-rise { from { transform: scaleY(.1); opacity: .45; } to { transform: scaleY(1); opacity: 1; } }

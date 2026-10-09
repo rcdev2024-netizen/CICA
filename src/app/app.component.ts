@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonApp, IonContent, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
+import { ClickSpinnerDirective } from './click-spinner.directive';
 import {
   alertCircleOutline, arrowDownOutline, arrowUpOutline, calendarOutline, checkmarkCircleOutline,
   chevronBackOutline, chevronDownOutline, chevronForwardOutline, closeOutline, cloudUploadOutline,
@@ -15,7 +16,7 @@ import { MockDataService, PolicyRecord } from './mock-data.service';
 @Component({
   selector: 'cica-root',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonApp, IonContent, IonIcon],
+  imports: [CommonModule, FormsModule, IonApp, IonContent, IonIcon, ClickSpinnerDirective],
   templateUrl: './app.component.html'
 })
 export class AppComponent {
