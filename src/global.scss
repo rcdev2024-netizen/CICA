@@ -103,7 +103,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(22, 143, 192
 .metric-card:nth-child(2) .sparkline polyline { stroke: #43b99a; }
 .metric-card:nth-child(3) .sparkline polyline { stroke: #e8a755; }
 .metric-card:nth-child(4) .sparkline polyline { stroke: #ae88db; }
-.insight-grid { display: grid; grid-template-columns: 1.07fr .88fr 1.45fr; gap: 10px; margin-top: 10px; }
+.insight-grid { display: grid; grid-template-columns: 1fr 1.05fr 1.25fr; gap: 10px; margin-top: 10px; }
 .panel { background: var(--surface); border: 1px solid #e6edef; border-radius: 9px; box-shadow: 0 2px 8px rgba(21,49,63,.025); min-width: 0; }
 .mix-panel, .persistence-panel, .trend-panel { min-height: 208px; padding: 14px 15px 10px; }
 .panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
