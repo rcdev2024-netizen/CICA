@@ -40,9 +40,15 @@ export class AppComponent {
   searchTerm = '';
   sortKey: keyof PolicyRecord = 'policy';
   sortDirection: 'asc' | 'desc' = 'asc';
+  rosterSearchTerm = '';
+  rosterSortKey: keyof AgentRosterRecord = 'agentNumber';
+  rosterSortDirection: 'asc' | 'desc' = 'asc';
+  rosterPage = 1;
+  rosterPageSize = 5;
   page = 1;
   pageSize = 5;
   expandedPolicy = '';
+  expandedAgentNumber = '';
   activityOpen = typeof window !== 'undefined' && window.matchMedia('(min-width: 701px)').matches;
   refreshing = false;
   lastUpdated = 'Jul 31, 2026 · 10:24 AM';
@@ -150,20 +156,53 @@ export class AppComponent {
       return !name || [agent.agentName, agent.agentNumber].some((value) => value.toLowerCase().includes(name));
     });
   }
-  get agencyDataMetrics(): { label: string; value: number }[] {
+  get filteredRoster(): AgentRosterRecord[] {
+    const term = this.rosterSearchTerm.trim().toLowerCase();
+    return this.agencyRosterRows
+      .filter((agent) =>
+        !term || [
+          agent.agentNumber, agent.agentName, agent.uplineHierarchy, agent.contractCode,
+          agent.level, agent.advanceVsAsEarned
+        ].some((value) => value.toLowerCase().includes(term))
+      )
+      .sort((a, b) => {
+        const left = a[this.rosterSortKey];
+        const right = b[this.rosterSortKey];
+        const result = typeof left === 'number' && typeof right === 'number'
+          ? left - right
+          : String(left).localeCompare(String(right));
+        return this.rosterSortDirection === 'asc' ? result : -result;
+      });
+  }
+  get rosterPageCount(): number { return Math.max(1, Math.ceil(this.filteredRoster.length / this.rosterPageSize)); }
+  get rosterPageNumbers(): number[] { return Array.from({ length: this.rosterPageCount }, (_, index) => index + 1); }
+  get visibleRosterRows(): AgentRosterRecord[] {
+    return this.filteredRoster.slice((this.rosterPage - 1) * this.rosterPageSize, this.rosterPage * this.rosterPageSize);
+  }
+  get rosterFirstResult(): number { return this.filteredRoster.length ? (this.rosterPage - 1) * this.rosterPageSize + 1 : 0; }
+  get rosterLastResult(): number { return Math.min(this.rosterPage * this.rosterPageSize, this.filteredRoster.length); }
+  get agencyDataMetrics(): { label: string; value: number; barWidth: number }[] {
     const producingAgentIds = new Set(
       this.scopedRecords.filter((record) => record.status === 'Active' || record.status === 'Submitted').map((record) => record.agentId)
     );
-    return [
+    const metrics = [
       { label: '# of Agents', value: this.agencyRosterRows.length },
       { label: '# Producing Agents', value: producingAgentIds.size },
       { label: '# of Downlines', value: this.agencyRosterRows.filter((agent) => agent.agencyMember).length }
     ];
+    const maxValue = Math.max(1, ...metrics.map((metric) => metric.value));
+    return metrics.map((metric) => ({
+      ...metric,
+      barWidth: metric.value ? Math.max(4, Math.round((metric.value / maxValue) * 100)) : 0
+    }));
   }
   get productionScopeLabel(): string {
     if (this.productionScope === 'overall') return 'Overall production';
     if (this.productionScope === 'agency') return 'Agency production';
     return 'Agent production';
+  }
+  scopedRecordsForAgent(agentNumber: string): number {
+    return this.scopedRecords.filter((record) => record.agentId === agentNumber).length;
   }
   private applyProductionScope(records: PolicyRecord[], applyDateRange = true): PolicyRecord[] {
     if (this.dashboardMode !== 'agency') {
@@ -227,16 +266,48 @@ export class AppComponent {
     this.page = 1;
   }
   searchChanged(): void { this.page = 1; }
-  agencyFiltersChanged(): void { this.page = 1; this.expandedPolicy = ''; }
+  agencyFiltersChanged(): void {
+    this.page = 1;
+    this.rosterPage = 1;
+    this.expandedPolicy = '';
+    this.expandedAgentNumber = '';
+  }
+  rosterSearchChanged(): void { this.rosterPage = 1; this.expandedAgentNumber = ''; }
   setDashboardMode(mode: 'agent' | 'agency'): void {
     this.dashboardMode = mode;
     this.page = 1;
+    this.rosterPage = 1;
     this.expandedPolicy = '';
+    this.expandedAgentNumber = '';
     this.notify(`${mode === 'agency' ? 'Agency' : 'Agent'} dashboard selected`);
   }
   productionScopeChanged(): void { this.agencyFiltersChanged(); }
   goPage(next: number): void { this.page = Math.min(this.pageCount, Math.max(1, next)); }
+  goRosterPage(next: number): void { this.rosterPage = Math.min(this.rosterPageCount, Math.max(1, next)); this.expandedAgentNumber = ''; }
   toggleExpanded(policy: string): void { this.expandedPolicy = this.expandedPolicy === policy ? '' : policy; }
+  toggleAgentExpanded(agentNumber: string): void {
+    this.expandedAgentNumber = this.expandedAgentNumber === agentNumber ? '' : agentNumber;
+  }
+  sortRosterBy(key: keyof AgentRosterRecord): void {
+    if (this.rosterSortKey === key) this.rosterSortDirection = this.rosterSortDirection === 'asc' ? 'desc' : 'asc';
+    else { this.rosterSortKey = key; this.rosterSortDirection = 'asc'; }
+    this.rosterPage = 1;
+  }
+  trackByRosterAgent(_index: number, agent: AgentRosterRecord): string { return agent.agentNumber; }
+  exportRosterCsv(): void {
+    const headers = ['Agent Number', 'Agent Name', 'Upline Hierarchy', 'Contract Code', 'Commission Percentage', 'Level', 'Advance vs As-Earned'];
+    const rows = this.filteredRoster.map((agent) => [
+      agent.agentNumber, agent.agentName, agent.uplineHierarchy, agent.contractCode,
+      agent.commissionPercentage, agent.level, agent.advanceVsAsEarned
+    ]);
+    const csv = [headers, ...rows].map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(',')).join('\r\n');
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    link.download = `cica-life-agent-roster-${this.productionScope}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    this.notify(`${rows.length} agent roster records exported`);
+  }
   toggleActivity(): void { this.activityOpen = !this.activityOpen; }
   openActivity(): void { this.activityOpen = true; }
   refresh(): void {

@@ -150,12 +150,13 @@
                 <span class="panel-icon blue-icon"><ion-icon name="people-outline"></ion-icon></span>
                 <h2>Agent data</h2>
               </div>
-              <div class="agency-data-metrics">
-                <div class="agency-data-metric" *ngFor="let metric of agencyDataMetrics">
-                  <b>{{ metric.value }}</b><span>{{ metric.label }}</span>
+              <div class="agency-data-graph" role="group" aria-label="Agent counts by production category">
+                <div class="agency-data-row" *ngFor="let metric of agencyDataMetrics">
+                  <div class="agency-data-label"><span>{{ metric.label }}</span><b>{{ metric.value }}</b></div>
+                  <div class="agency-data-track"><i [style.width.%]="metric.barWidth"></i></div>
                 </div>
               </div>
-              <p>Roster totals for the selected production view</p>
+              <p>Counts for the selected production view</p>
             </article>
           </section>
 
@@ -208,38 +209,86 @@
             </div>
           </section>
           <section class="panel roster-panel" *ngIf="dashboardMode === 'agency'">
-            <div class="roster-panel-heading">
-              <span>Agent roster</span>
-              <small>{{ agencyRosterRows.length }} agents · Sample data</small>
+            <div class="register-header roster-header">
+              <div class="register-title">
+                <span class="panel-icon blue-icon"><ion-icon name="people-outline"></ion-icon></span>
+                <div><h2>Agent roster</h2><p>{{ agencyRosterRows.length }} agents · Search and manage team appointments</p></div>
+              </div>
+              <div class="register-actions roster-actions">
+                <label class="search-box"><ion-icon name="search-outline"></ion-icon><input type="search" placeholder="Search agents..." [(ngModel)]="rosterSearchTerm" (ngModelChange)="rosterSearchChanged()" aria-label="Search agent roster"></label>
+                <button class="export-button" (click)="exportRosterCsv()"><ion-icon name="download-outline"></ion-icon><span>Export CSV</span></button>
+                <button class="row-more roster-options" aria-label="More agent roster options" (click)="notify('Agent roster options')"><ion-icon name="ellipsis-horizontal"></ion-icon></button>
+              </div>
+            </div>
+            <div class="mobile-roster-list" *ngFor="let agent of visibleRosterRows; trackBy: trackByRosterAgent">
+              <article class="mobile-roster-card">
+                <div class="mobile-roster-summary-row">
+                  <button class="mobile-record-summary" (click)="toggleAgentExpanded(agent.agentNumber)" [attr.aria-expanded]="expandedAgentNumber === agent.agentNumber">
+                    <span class="mobile-record-main"><b>{{ agent.agentName }}</b><small>{{ agent.agentNumber }} · {{ agent.contractCode }}</small></span>
+                    <span class="status-pill active">{{ agent.commissionPercentage }}%</span>
+                    <ion-icon [name]="expandedAgentNumber === agent.agentNumber ? 'chevron-down-outline' : 'chevron-forward-outline'"></ion-icon>
+                  </button>
+                  <button class="row-more mobile-roster-more" [attr.aria-label]="'More details for ' + agent.agentName" (click)="toggleAgentExpanded(agent.agentNumber)"><ion-icon name="ellipsis-horizontal"></ion-icon></button>
+                </div>
+                <div class="mobile-record-details roster-mobile-details" *ngIf="expandedAgentNumber === agent.agentNumber">
+                  <span>Upline hierarchy <b>{{ agent.uplineHierarchy }}</b></span>
+                  <span>Commission <b>{{ agent.commissionPercentage }}%</b></span>
+                  <span>Level <b>{{ agent.level }}</b></span>
+                  <span>Advance vs. as-earned <b>{{ agent.advanceVsAsEarned }}</b></span>
+                </div>
+              </article>
             </div>
             <div class="roster-table-wrap">
               <table class="roster-table">
                 <thead>
                   <tr>
-                    <th>Agent number</th>
-                    <th>Agent name</th>
-                    <th>Upline hierarchy</th>
-                    <th>Contract code</th>
-                    <th>Commission percentage</th>
-                    <th>Level</th>
-                    <th>Advance vs. as-earned</th>
+                    <th><button (click)="sortRosterBy('agentNumber')">Agent number <span class="sort-mark">↕</span></button></th>
+                    <th><button (click)="sortRosterBy('agentName')">Agent name <span class="sort-mark">↕</span></button></th>
+                    <th><button (click)="sortRosterBy('uplineHierarchy')">Upline hierarchy <span class="sort-mark">↕</span></button></th>
+                    <th><button (click)="sortRosterBy('contractCode')">Contract code <span class="sort-mark">↕</span></button></th>
+                    <th><button (click)="sortRosterBy('commissionPercentage')">Commission percentage <span class="sort-mark">↕</span></button></th>
+                    <th><button (click)="sortRosterBy('level')">Level <span class="sort-mark">↕</span></button></th>
+                    <th><button (click)="sortRosterBy('advanceVsAsEarned')">Advance vs. as-earned <span class="sort-mark">↕</span></button></th>
+                    <th>Details</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let agent of agencyRosterRows">
-                    <td>{{ agent.agentNumber }}</td>
-                    <td class="agent-name">{{ agent.agentName }}</td>
-                    <td>{{ agent.uplineHierarchy }}</td>
-                    <td>{{ agent.contractCode }}</td>
-                    <td>{{ agent.commissionPercentage }}%</td>
-                    <td>{{ agent.level }}</td>
-                    <td><span class="roster-contract-type" [class.advance]="agent.advanceVsAsEarned === 'Advance'">{{ agent.advanceVsAsEarned }}</span></td>
-                  </tr>
-                  <tr *ngIf="agencyRosterRows.length === 0">
-                    <td colspan="7"><div class="roster-empty">No agents match this production view. Enter an agent name or choose another view.</div></td>
+                  <ng-container *ngFor="let agent of visibleRosterRows; trackBy: trackByRosterAgent">
+                    <tr class="data-row" [class.row-expanded]="expandedAgentNumber === agent.agentNumber" (click)="toggleAgentExpanded(agent.agentNumber)">
+                      <td><span class="row-chevron"><ion-icon [name]="expandedAgentNumber === agent.agentNumber ? 'chevron-down-outline' : 'chevron-forward-outline'"></ion-icon></span><b>{{ agent.agentNumber }}</b></td>
+                      <td class="agent-name">{{ agent.agentName }}</td>
+                      <td>{{ agent.uplineHierarchy }}</td>
+                      <td>{{ agent.contractCode }}</td>
+                      <td>{{ agent.commissionPercentage }}%</td>
+                      <td>{{ agent.level }}</td>
+                      <td><span class="roster-contract-type" [class.advance]="agent.advanceVsAsEarned === 'Advance'">{{ agent.advanceVsAsEarned }}</span></td>
+                      <td><button class="row-more" [attr.aria-label]="'Toggle details for ' + agent.agentName" (click)="$event.stopPropagation(); toggleAgentExpanded(agent.agentNumber)"><ion-icon name="ellipsis-horizontal"></ion-icon></button></td>
+                    </tr>
+                    <tr class="detail-row roster-detail-row" *ngIf="expandedAgentNumber === agent.agentNumber">
+                      <td colspan="8">
+                        <div class="details-grid">
+                          <div><small>AGENT INFORMATION</small><span>Agent number <b>{{ agent.agentNumber }}</b></span><span>Agent name <b>{{ agent.agentName }}</b></span></div>
+                          <div><small>UPLINE</small><span>Hierarchy <b>{{ agent.uplineHierarchy }}</b></span><span>Team affiliation <b>{{ agent.agencyMember ? 'Gina Graber Agency' : 'Partner Agency' }}</b></span></div>
+                          <div><small>CONTRACT</small><span>Contract code <b>{{ agent.contractCode }}</b></span><span>Agent level <b>{{ agent.level }}</b></span></div>
+                          <div><small>COMPENSATION</small><span>Commission <b>{{ agent.commissionPercentage }}%</b></span><span>Payment method <b>{{ agent.advanceVsAsEarned }}</b></span></div>
+                          <div><small>PRODUCTION</small><span>Policies in range <b>{{ scopedRecordsForAgent(agent.agentNumber) }}</b></span><span>View <b>{{ productionScopeLabel }}</b></span></div>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-container>
+                  <tr *ngIf="filteredRoster.length === 0">
+                    <td colspan="8"><div class="roster-empty">No agents match this search or production view.</div></td>
                   </tr>
                 </tbody>
               </table>
+            </div>
+            <div class="table-footer roster-table-footer">
+              <span>Showing <b>{{ rosterFirstResult }}–{{ rosterLastResult }}</b> of {{ filteredRoster.length }} agents <em>·</em> Sample data</span>
+              <div class="pagination" aria-label="Agent roster pages">
+                <button aria-label="Previous agent roster page" [disabled]="rosterPage === 1" (click)="goRosterPage(rosterPage - 1)"><ion-icon name="chevron-back-outline"></ion-icon></button>
+                <button *ngFor="let p of rosterPageNumbers" [class.current]="rosterPage === p" [attr.aria-label]="'Agent roster page ' + p" (click)="goRosterPage(p)">{{ p }}</button>
+                <button aria-label="Next agent roster page" [disabled]="rosterPage === rosterPageCount" (click)="goRosterPage(rosterPage + 1)"><ion-icon name="chevron-forward-outline"></ion-icon></button>
+              </div>
             </div>
           </section>
           <footer class="dashboard-footer"><span>© 2026 CICA Life of America</span><span>Team Gina | Kevin Demo 2026</span><span>Private agent workspace</span></footer>

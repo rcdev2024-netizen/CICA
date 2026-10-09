@@ -54,7 +54,10 @@ export class MockDataService {
     { agentNumber: 'A-1058', agentName: 'John Apodaca', uplineHierarchy: 'Gina Graber / West Team', contractCode: 'CICA-110', commissionPercentage: 75, level: 'Producer', advanceVsAsEarned: 'Advance', agencyMember: true },
     { agentNumber: 'A-1063', agentName: 'David Garcia', uplineHierarchy: 'Gina Graber / Southwest', contractCode: 'CICA-125', commissionPercentage: 80, level: 'Senior', advanceVsAsEarned: 'As-Earned', agencyMember: true },
     { agentNumber: 'A-1046', agentName: 'Lisa Tan', uplineHierarchy: 'Gina Graber / West Team', contractCode: 'CICA-100', commissionPercentage: 70, level: 'Producer', advanceVsAsEarned: 'Advance', agencyMember: true },
-    { agentNumber: 'A-1082', agentName: 'Sophia Cruz', uplineHierarchy: 'Partner Agency / Florida', contractCode: 'CICA-125', commissionPercentage: 80, level: 'Senior', advanceVsAsEarned: 'As-Earned', agencyMember: false }
+    { agentNumber: 'A-1082', agentName: 'Sophia Cruz', uplineHierarchy: 'Partner Agency / Florida', contractCode: 'CICA-125', commissionPercentage: 80, level: 'Senior', advanceVsAsEarned: 'As-Earned', agencyMember: false },
+    { agentNumber: 'A-1091', agentName: 'Jade Williams', uplineHierarchy: 'Gina Graber / East Team', contractCode: 'CICA-100', commissionPercentage: 70, level: 'Associate', advanceVsAsEarned: 'Advance', agencyMember: true },
+    { agentNumber: 'A-1102', agentName: 'Andre Lewis', uplineHierarchy: 'Gina Graber / East Team', contractCode: 'CICA-110', commissionPercentage: 75, level: 'Producer', advanceVsAsEarned: 'As-Earned', agencyMember: true },
+    { agentNumber: 'A-1115', agentName: 'Emily Watson', uplineHierarchy: 'Gina Graber / Southwest', contractCode: 'CICA-100', commissionPercentage: 70, level: 'Associate', advanceVsAsEarned: 'Advance', agencyMember: true }
   ];
 
   readonly activities = [
