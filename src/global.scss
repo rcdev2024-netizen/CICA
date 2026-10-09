@@ -314,10 +314,11 @@ th.amount-col { text-align: right; }
   .workspace { padding: 13px 14px 18px; }
   .filter-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-bottom: 5px; }
   .range-control { min-width: 0; grid-column: 1 / -1; height: 36px; font-size: 10px; }
+  .filter-spacer { display: none; }
   .period-switch { justify-self: start; height: 33px; }
   .period-switch button { padding: 0 11px; font-size: 9px; }
   .last-updated { display: none; }
-  .refresh-button { justify-self: end; height: 33px; }
+  .refresh-button { grid-column: 2; justify-self: end; height: 33px; }
   .range-caption { margin-top: 4px; margin-bottom: 9px; font-size: 8px; }
   .custom-range { width: 100%; flex-wrap: wrap; }
   .custom-range label { flex: 1; justify-content: space-between; }
