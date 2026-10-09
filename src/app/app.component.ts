@@ -21,8 +21,8 @@ import { MockDataService, PolicyRecord } from './mock-data.service';
 })
 export class AppComponent {
   period = 'YTD';
-  customStart = '2025-01-01';
-  customEnd = '2025-07-31';
+  customStart = '2026-01-01';
+  customEnd = '2026-07-31';
   showCustomDates = false;
   searchTerm = '';
   sortKey: keyof PolicyRecord = 'policy';
@@ -32,7 +32,7 @@ export class AppComponent {
   expandedPolicy = '';
   activityOpen = typeof window !== 'undefined' && window.matchMedia('(min-width: 701px)').matches;
   refreshing = false;
-  lastUpdated = 'Jul 31, 2025 · 10:24 AM';
+  lastUpdated = 'Jul 31, 2026 · 10:24 AM';
   toast = '';
   private toastTimer?: ReturnType<typeof setTimeout>;
 
@@ -93,14 +93,14 @@ export class AppComponent {
     this.period = value;
     this.showCustomDates = value === 'Custom';
     if (value === 'Month') {
-      this.customStart = '2025-07-01';
-      this.customEnd = '2025-07-31';
+      this.customStart = '2026-07-01';
+      this.customEnd = '2026-07-31';
     } else if (value === 'Quarter') {
-      this.customStart = '2025-04-01';
-      this.customEnd = '2025-06-30';
+      this.customStart = '2026-04-01';
+      this.customEnd = '2026-06-30';
     } else if (value === 'YTD') {
-      this.customStart = '2025-01-01';
-      this.customEnd = '2025-07-31';
+      this.customStart = '2026-01-01';
+      this.customEnd = '2026-07-31';
     }
     this.notify(`${value === 'Custom' ? 'Choose a date range' : value + ' view selected'}`);
   }
