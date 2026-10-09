@@ -48,7 +48,7 @@
             <article class="metric-card entrance" *ngFor="let kpi of kpis; let i = index" [style.--delay]="(i * 65) + 'ms'">
               <div class="metric-heading"><span class="metric-icon" [ngClass]="kpi.tone"><ion-icon [name]="kpi.icon"></ion-icon></span><span>{{ kpi.title }}</span><button class="tiny-menu" [attr.aria-label]="'More about ' + kpi.title" (click)="notify(kpi.title + ' for ' + period + ' performance')"><ion-icon name="ellipsis-horizontal"></ion-icon></button></div>
               <div class="metric-value">{{ kpi.value }}</div>
-              <div class="metric-footer"><span class="change" [class.negative]="kpi.direction === 'down'"><ion-icon [name]="kpi.direction === 'up' ? 'arrow-up-outline' : 'arrow-down-outline'"></ion-icon>{{ kpi.change }}</span><span class="vs-year">vs. last year</span><svg class="sparkline" viewBox="0 0 84 34" role="img" [attr.aria-label]="kpi.title + ' trend line'"><polyline [attr.points]="kpi.points"></polyline></svg></div>
+              <div class="metric-footer"><span class="change" [class.negative]="kpi.direction === 'down'"><ion-icon [name]="kpi.direction === 'up' ? 'arrow-up-outline' : 'arrow-down-outline'"></ion-icon>{{ kpi.change }}</span><span class="vs-year">vs. last year</span><svg class="sparkline" viewBox="0 0 84 34" role="img" [attr.aria-label]="kpi.title + ' trend line'" [attr.title]="kpi.title + ': ' + kpi.value + ' (' + kpi.change + ' vs. last year)'"><polyline [attr.points]="kpi.points"></polyline></svg></div>
             </article>
           </section>
 
@@ -58,11 +58,11 @@
               <div class="mix-content">
                 <div class="mix-rows">
                   <div class="mix-row" *ngFor="let line of mix">
-                    <span class="mix-label">{{ line.name }}</span><span class="mix-bar"><i [ngClass]="line.color" [style.width.%]="line.pct"></i></span><b>{{ line.pct }}%</b>
+                    <span class="mix-label">{{ line.name }}</span><span class="mix-bar" [attr.data-tooltip]="line.name + ' · ' + line.pct + '% · ' + line.amount" [attr.aria-label]="line.name + ': ' + line.pct + '%, ' + line.amount" tabindex="0"><i [ngClass]="line.color" [style.width.%]="line.pct"></i></span><b>{{ line.pct }}%</b>
                   </div>
                 </div>
                 <div class="donut-wrap">
-                  <div class="donut"><div><b>$2.48M</b><span>Total sales</span></div></div>
+                  <div class="donut" title="Total sales: $2.48M"><div><b>$2.48M</b><span>Total sales</span></div></div>
                   <div class="donut-legend"><span><i></i> Issued sales</span><b>$2.48M</b></div>
                 </div>
               </div>
@@ -73,7 +73,7 @@
               <div class="panel-heading"><div><span class="panel-icon teal-icon"><ion-icon name="document-text-outline"></ion-icon></span><div><h2>Persistence</h2><p>Overall policy retention</p></div></div><button class="text-action" (click)="notify('Persistence is measured by policy duration')">View details <ion-icon name="chevron-forward-outline"></ion-icon></button></div>
               <div class="persistence-row">
                 <div class="persist-item" *ngFor="let item of [{m:'1 mo',v:91},{m:'3 mo',v:88},{m:'6 mo',v:84},{m:'12 mo',v:81},{m:'18 mo',v:73}]">
-                  <div class="progress-ring" [style.--progress]="item.v + '%'"><span>{{ item.v }}<small>%</small></span></div><small>{{ item.m }}</small>
+                  <div class="progress-ring" [style.--progress]="item.v + '%'" [attr.data-tooltip]="item.m + ' persistence · ' + item.v + '% retained'" [attr.aria-label]="item.m + ' persistence: ' + item.v + '% retained'" tabindex="0"><span>{{ item.v }}<small>%</small></span></div><small>{{ item.m }}</small>
                 </div>
               </div>
               <p class="panel-footnote">Blue bubbles show persistence by policy age.</p>
@@ -88,8 +88,8 @@
                   <line x1="0" y1="8" x2="420" y2="8"></line><line x1="0" y1="38" x2="420" y2="38"></line><line x1="0" y1="68" x2="420" y2="68"></line><line x1="0" y1="98" x2="420" y2="98"></line><line x1="0" y1="128" x2="420" y2="128"></line>
                   <polyline class="issued-line" points="8,105 75,89 142,77 209,64 276,51 343,39 411,20"></polyline>
                   <polyline class="submitted-line" points="8,116 75,103 142,92 209,85 276,70 343,59 411,43"></polyline>
-                  <g class="issued-points"><circle cx="8" cy="105" r="3"></circle><circle cx="75" cy="89" r="3"></circle><circle cx="142" cy="77" r="3"></circle><circle cx="209" cy="64" r="3"></circle><circle cx="276" cy="51" r="3"></circle><circle cx="343" cy="39" r="3"></circle><circle cx="411" cy="20" r="3"></circle></g>
-                  <g class="submitted-points"><circle cx="8" cy="116" r="3"></circle><circle cx="75" cy="103" r="3"></circle><circle cx="142" cy="92" r="3"></circle><circle cx="209" cy="85" r="3"></circle><circle cx="276" cy="70" r="3"></circle><circle cx="343" cy="59" r="3"></circle><circle cx="411" cy="43" r="3"></circle></g>
+                  <g class="issued-points"><circle cx="8" cy="105" r="3"><title>Jan · Issued trend: {{ trendIssued[0] }}</title></circle><circle cx="75" cy="89" r="3"><title>Feb · Issued trend: {{ trendIssued[1] }}</title></circle><circle cx="142" cy="77" r="3"><title>Mar · Issued trend: {{ trendIssued[2] }}</title></circle><circle cx="209" cy="64" r="3"><title>Apr · Issued trend: {{ trendIssued[3] }}</title></circle><circle cx="276" cy="51" r="3"><title>May · Issued trend: {{ trendIssued[4] }}</title></circle><circle cx="343" cy="39" r="3"><title>Jun · Issued trend: {{ trendIssued[5] }}</title></circle><circle cx="411" cy="20" r="3"><title>Jul · Issued trend: {{ trendIssued[6] }}</title></circle></g>
+                  <g class="submitted-points"><circle cx="8" cy="116" r="3"><title>Jan · Submitted trend: {{ trendSubmitted[0] }}</title></circle><circle cx="75" cy="103" r="3"><title>Feb · Submitted trend: {{ trendSubmitted[1] }}</title></circle><circle cx="142" cy="92" r="3"><title>Mar · Submitted trend: {{ trendSubmitted[2] }}</title></circle><circle cx="209" cy="85" r="3"><title>Apr · Submitted trend: {{ trendSubmitted[3] }}</title></circle><circle cx="276" cy="70" r="3"><title>May · Submitted trend: {{ trendSubmitted[4] }}</title></circle><circle cx="343" cy="59" r="3"><title>Jun · Submitted trend: {{ trendSubmitted[5] }}</title></circle><circle cx="411" cy="43" r="3"><title>Jul · Submitted trend: {{ trendSubmitted[6] }}</title></circle></g>
                 </svg>
                 <div class="x-labels"><span *ngFor="let month of months">{{ month }}</span></div>
               </div>
@@ -101,7 +101,7 @@
               <div class="monthly-top"><span class="panel-icon" [ngClass]="item.tone + '-icon'"><ion-icon [name]="item.icon"></ion-icon></span><button class="text-action" (click)="notify(item.title + ' details for ' + period)">View details <ion-icon name="chevron-forward-outline"></ion-icon></button></div>
               <h2>{{ item.title }}</h2>
               <div class="monthly-stat"><b>{{ item.value }}</b><span class="change" [class.negative]="item.change.startsWith('-')"><ion-icon [name]="item.change.startsWith('-') ? 'arrow-down-outline' : 'arrow-up-outline'"></ion-icon>{{ item.change }}</span><small>vs. last year</small></div>
-              <div class="bar-chart" aria-label="Eight month summary"><div class="bar-column" *ngFor="let height of item.bars; let j = index"><i [style.height.%]="height * 1.35"></i><small>{{ ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'][j] }}</small></div></div>
+              <div class="bar-chart" aria-label="Eight month summary"><div class="bar-column" *ngFor="let height of item.bars; let j = index" [attr.data-tooltip]="item.title + ' · ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'][j] + ' · relative value ' + height" [attr.aria-label]="item.title + ', ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'][j] + ': relative value ' + height" tabindex="0"><i [style.height.%]="height * 1.35"></i><small>{{ ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'][j] }}</small></div></div>
             </article>
           </section>
 
