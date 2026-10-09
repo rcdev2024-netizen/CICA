@@ -1,0 +1,197 @@
+<ion-app>
+  <ion-content [fullscreen]="true">
+    <main class="app-shell" [class.activity-collapsed]="!activityOpen">
+      <section class="dashboard-area">
+        <header class="topbar">
+          <button class="mobile-menu icon-button" aria-label="Open navigation" (click)="mobileNavOpen = !mobileNavOpen">
+            <ion-icon name="menu-outline"></ion-icon>
+          </button>
+          <div class="brand-block">
+            <img src="assets/cica-life-logo.png" alt="CICA Life of America" class="brand-logo">
+            <span class="brand-divider"></span>
+            <div class="brand-title">
+              <strong>Agent dashboard</strong>
+              <span>Your business, in good order.</span>
+            </div>
+          </div>
+          <nav class="primary-nav" [class.nav-open]="mobileNavOpen" aria-label="Main navigation">
+            <button class="nav-link selected" (click)="mobileNavOpen = false"><span class="nav-mark"></span>Overview</button>
+            <button class="nav-link" (click)="notify('Business register is shown below')"><ion-icon name="document-text-outline"></ion-icon>My business</button>
+            <button class="nav-link" (click)="notify('Client work is reflected in recent activity')"><ion-icon name="people-outline"></ion-icon>Clients</button>
+          </nav>
+          <div class="profile-tools">
+            <button class="icon-button notification-button" aria-label="Notifications" (click)="notify('You’re all caught up on notifications')">
+              <ion-icon name="notifications-outline"></ion-icon><i></i>
+            </button>
+            <button class="profile-button" aria-label="Agent profile: Jason Delas Cruz" (click)="notify('Signed in as Jason Delas Cruz · Agent')">
+              <span class="avatar">JC</span><span class="profile-copy"><b>Jason Delas Cruz</b><small>Agent</small></span><ion-icon name="chevron-down-outline"></ion-icon>
+            </button>
+          </div>
+        </header>
+
+        <section class="workspace">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">MY PORTFOLIO <span>·</span> DEMO WORKSPACE</p>
+              <h1>Good morning, Jason<span class="heading-period">.</span></h1>
+              <p class="subtitle">A clear view of your book of business and what needs attention.</p>
+            </div>
+            <div class="date-stamp"><span class="live-dot"></span> Thursday, July 31, 2025</div>
+          </div>
+
+          <div class="filter-row">
+            <div class="range-control">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <span>{{ formatDate(customStart) }} – {{ formatDate(customEnd) }}</span>
+              <ion-icon class="range-chevron" name="chevron-down-outline"></ion-icon>
+            </div>
+            <div class="period-switch" role="group" aria-label="Dashboard date period">
+              <button *ngFor="let item of periods" [class.active]="period === item" [attr.aria-pressed]="period === item" (click)="setPeriod(item)">{{ item }}</button>
+            </div>
+            <div class="filter-spacer"></div>
+            <div class="last-updated">Last updated <b>{{ lastUpdated }}</b></div>
+            <button class="refresh-button" [class.is-refreshing]="refreshing" (click)="refresh()" [disabled]="refreshing">
+              <ion-icon name="refresh-outline"></ion-icon><span>{{ refreshing ? 'Updating' : 'Refresh' }}</span>
+            </button>
+          </div>
+          <div class="custom-range" *ngIf="showCustomDates">
+            <label>From <input type="date" [(ngModel)]="customStart" aria-label="Custom start date"></label>
+            <label>To <input type="date" [(ngModel)]="customEnd" aria-label="Custom end date"></label>
+            <button class="apply-range" (click)="applyCustomRange()">Apply range</button>
+          </div>
+          <div class="range-caption"><span class="sample-tag"><span></span> DEMO DATA</span><span>Showing <b>{{ period === 'Custom' ? formatDate(customStart) + ' – ' + formatDate(customEnd) : period }}</b> performance</span></div>
+
+          <section class="kpi-grid" aria-label="Policy performance">
+            <article class="metric-card entrance" *ngFor="let kpi of kpis; let i = index" [style.--delay]="(i * 65) + 'ms'">
+              <div class="metric-heading"><span class="metric-icon" [ngClass]="kpi.tone"><ion-icon [name]="kpi.icon"></ion-icon></span><span>{{ kpi.title }}</span><button class="tiny-menu" [attr.aria-label]="'More about ' + kpi.title" (click)="notify(kpi.title + ' for ' + period + ' performance')"><ion-icon name="ellipsis-horizontal"></ion-icon></button></div>
+              <div class="metric-value">{{ kpi.value }}</div>
+              <div class="metric-footer"><span class="change" [class.negative]="kpi.direction === 'down'"><ion-icon [name]="kpi.direction === 'up' ? 'arrow-up-outline' : 'arrow-down-outline'"></ion-icon>{{ kpi.change }}</span><span class="vs-year">vs. last year</span><svg class="sparkline" viewBox="0 0 84 34" role="img" [attr.aria-label]="kpi.title + ' trend line'"><polyline [attr.points]="kpi.points"></polyline></svg></div>
+            </article>
+          </section>
+
+          <section class="insight-grid">
+            <article class="panel mix-panel">
+              <div class="panel-heading"><div><span class="panel-icon blue-icon"><ion-icon name="people-outline"></ion-icon></span><div><h2>Sales &amp; business mix</h2><p>YTD sales by line of business</p></div></div><button class="text-action" (click)="notify('Business mix reflects $2.48M in total sales')">View details <ion-icon name="chevron-forward-outline"></ion-icon></button></div>
+              <div class="mix-content">
+                <div class="mix-rows">
+                  <div class="mix-row" *ngFor="let line of mix">
+                    <span class="mix-label">{{ line.name }}</span><span class="mix-bar"><i [ngClass]="line.color" [style.width.%]="line.pct"></i></span><b>{{ line.pct }}%</b>
+                  </div>
+                </div>
+                <div class="donut-wrap">
+                  <div class="donut"><div><b>$2.48M</b><span>Total sales</span></div></div>
+                  <div class="donut-legend"><span><i></i> Issued sales</span><b>$2.48M</b></div>
+                </div>
+              </div>
+              <p class="panel-footnote">Life remains your strongest line this year.</p>
+            </article>
+
+            <article class="panel persistence-panel">
+              <div class="panel-heading"><div><span class="panel-icon teal-icon"><ion-icon name="document-text-outline"></ion-icon></span><div><h2>Persistence</h2><p>Overall policy retention</p></div></div><button class="text-action" (click)="notify('Persistence is measured by policy duration')">View details <ion-icon name="chevron-forward-outline"></ion-icon></button></div>
+              <div class="persistence-row">
+                <div class="persist-item" *ngFor="let item of [{m:'1 mo',v:91},{m:'3 mo',v:88},{m:'6 mo',v:84},{m:'12 mo',v:81},{m:'18 mo',v:73}]">
+                  <div class="progress-ring" [style.--progress]="item.v + '%'"><span>{{ item.v }}<small>%</small></span></div><small>{{ item.m }}</small>
+                </div>
+              </div>
+              <p class="panel-footnote">Blue bubbles show persistence by policy age.</p>
+            </article>
+
+            <article class="panel trend-panel">
+              <div class="panel-heading"><div><span class="panel-icon blue-icon"><ion-icon name="trending-up-outline"></ion-icon></span><div><h2>Growth trend</h2><p>Policies issued and submitted</p></div></div><button class="text-action" (click)="notify('Trend view updated for ' + period)">View details <ion-icon name="chevron-forward-outline"></ion-icon></button></div>
+              <div class="trend-legend"><span><i class="dot issued"></i>Issued</span><span><i class="dot submitted"></i>Submitted</span></div>
+              <div class="chart-area">
+                <div class="y-labels"><span>2.0k</span><span>1.5k</span><span>1.0k</span><span>0.5k</span><span>0</span></div>
+                <svg viewBox="0 0 420 132" preserveAspectRatio="none" class="trend-chart" aria-label="Issued policies rose from January through July">
+                  <line x1="0" y1="8" x2="420" y2="8"></line><line x1="0" y1="38" x2="420" y2="38"></line><line x1="0" y1="68" x2="420" y2="68"></line><line x1="0" y1="98" x2="420" y2="98"></line><line x1="0" y1="128" x2="420" y2="128"></line>
+                  <polyline class="issued-line" points="8,105 75,89 142,77 209,64 276,51 343,39 411,20"></polyline>
+                  <polyline class="submitted-line" points="8,116 75,103 142,92 209,85 276,70 343,59 411,43"></polyline>
+                  <g class="issued-points"><circle cx="8" cy="105" r="3"></circle><circle cx="75" cy="89" r="3"></circle><circle cx="142" cy="77" r="3"></circle><circle cx="209" cy="64" r="3"></circle><circle cx="276" cy="51" r="3"></circle><circle cx="343" cy="39" r="3"></circle><circle cx="411" cy="20" r="3"></circle></g>
+                  <g class="submitted-points"><circle cx="8" cy="116" r="3"></circle><circle cx="75" cy="103" r="3"></circle><circle cx="142" cy="92" r="3"></circle><circle cx="209" cy="85" r="3"></circle><circle cx="276" cy="70" r="3"></circle><circle cx="343" cy="59" r="3"></circle><circle cx="411" cy="43" r="3"></circle></g>
+                </svg>
+                <div class="x-labels"><span *ngFor="let month of months">{{ month }}</span></div>
+              </div>
+            </article>
+          </section>
+
+          <section class="monthly-grid" aria-label="Operational monthly summaries">
+            <article class="panel monthly-card" *ngFor="let item of monthly; let i = index">
+              <div class="monthly-top"><span class="panel-icon" [ngClass]="item.tone + '-icon'"><ion-icon [name]="item.icon"></ion-icon></span><button class="text-action" (click)="notify(item.title + ' details for ' + period)">View details <ion-icon name="chevron-forward-outline"></ion-icon></button></div>
+              <h2>{{ item.title }}</h2>
+              <div class="monthly-stat"><b>{{ item.value }}</b><span class="change" [class.negative]="item.change.startsWith('-')"><ion-icon [name]="item.change.startsWith('-') ? 'arrow-down-outline' : 'arrow-up-outline'"></ion-icon>{{ item.change }}</span><small>vs. last year</small></div>
+              <div class="bar-chart" aria-label="Eight month summary"><div class="bar-column" *ngFor="let height of item.bars; let j = index"><i [style.height.%]="height * 1.35"></i><small>{{ ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'][j] }}</small></div></div>
+            </article>
+          </section>
+
+          <section class="panel register-panel">
+            <div class="register-header">
+              <div class="register-title"><span class="panel-icon blue-icon"><ion-icon name="document-text-outline"></ion-icon></span><div><h2>Business register</h2><p>Search and manage your business records</p></div></div>
+              <div class="register-actions">
+                <label class="search-box"><ion-icon name="search-outline"></ion-icon><input type="search" placeholder="Search policies, agents..." [(ngModel)]="searchTerm" (ngModelChange)="searchChanged()" aria-label="Search business register"></label>
+                <button class="export-button" (click)="exportCsv()"><ion-icon name="download-outline"></ion-icon><span>Export CSV</span></button>
+              </div>
+            </div>
+            <div class="mobile-register" *ngFor="let record of visibleRecords; trackBy: trackByPolicy">
+              <button class="mobile-record-summary" (click)="toggleExpanded(record.policy)" [attr.aria-expanded]="expandedPolicy === record.policy">
+                <span class="mobile-record-main"><b>{{ record.policy }}</b><small>{{ record.agent }} · {{ record.line }}</small></span><span class="status-pill" [ngClass]="record.status.toLowerCase().replace(' ', '-')">{{ record.status }}</span><ion-icon [name]="expandedPolicy === record.policy ? 'chevron-down-outline' : 'chevron-forward-outline'"></ion-icon>
+              </button>
+              <div class="mobile-record-details" *ngIf="expandedPolicy === record.policy">
+                <span>Client <b>{{ record.client }}</b></span><span>Face amount <b>{{ formatMoney(record.amount) }}</b></span><span>Agent email <b>{{ record.email }}</b></span><span>Issued <b>{{ record.issued }}</b></span>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th><button (click)="sortBy('policy')">Policy # <span class="sort-mark">↕</span></button></th>
+                  <th><button (click)="sortBy('agentId')">Agent ID <span class="sort-mark">↕</span></button></th>
+                  <th><button (click)="sortBy('agent')">Agent name <span class="sort-mark">↕</span></button></th>
+                  <th><button (click)="sortBy('email')">Agent email <span class="sort-mark">↕</span></button></th>
+                  <th><button (click)="sortBy('line')">LOB description <span class="sort-mark">↕</span></button></th>
+                  <th class="amount-col"><button (click)="sortBy('amount')">Face amount <span class="sort-mark">↕</span></button></th>
+                  <th><button (click)="sortBy('status')">Policy status <span class="sort-mark">↕</span></button></th>
+                  <th>Details</th>
+                </tr></thead>
+                <tbody>
+                  <ng-container *ngFor="let record of visibleRecords; trackBy: trackByPolicy">
+                    <tr class="data-row" [class.row-expanded]="expandedPolicy === record.policy" (click)="toggleExpanded(record.policy)">
+                      <td><span class="row-chevron"><ion-icon [name]="expandedPolicy === record.policy ? 'chevron-down-outline' : 'chevron-forward-outline'"></ion-icon></span><b>{{ record.policy }}</b></td>
+                      <td>{{ record.agentId }}</td><td class="agent-name">{{ record.agent }}</td><td class="email-cell">{{ record.email }}</td><td>{{ record.line }}</td><td class="amount-col">{{ formatMoney(record.amount) }}</td>
+                      <td><span class="status-pill" [ngClass]="record.status.toLowerCase().replace(' ', '-')"><i></i>{{ record.status }}</span></td>
+                      <td><button class="row-more" [attr.aria-label]="'Toggle details for ' + record.policy" (click)="$event.stopPropagation(); toggleExpanded(record.policy)"><ion-icon name="ellipsis-horizontal"></ion-icon></button></td>
+                    </tr>
+                    <tr class="detail-row" *ngIf="expandedPolicy === record.policy"><td colspan="8">
+                      <div class="details-grid"><div><small>BUSINESS INFORMATION</small><span>Client name <b>{{ record.client }}</b></span><span>Business type <b>Financial services</b></span><span>Industry <b>Insurance</b></span></div><div><small>REGISTRATION DETAILS</small><span>Application date <b>{{ record.issued }}</b></span><span>Policy status <b>{{ record.status }}</b></span><span>Registered location <b>{{ record.state }}</b></span></div><div><small>OWNERSHIP &amp; CONTACT</small><span>Owner name <b>{{ record.agent }}</b></span><span>Ownership type <b>Sole proprietor</b></span><span>Contact email <b>{{ record.email }}</b></span></div><div><small>POLICY DETAILS</small><span>Line of business <b>{{ record.line }}</b></span><span>Face amount <b>{{ formatMoney(record.amount) }}</b></span><span>Premium <b>{{ formatMoney(record.premium) }} / {{ record.billing.toLowerCase() }}</b></span></div><div><small>AGENT INFORMATION</small><span>Agent ID <b>{{ record.agentId }}</b></span><span>Writing agent <b>{{ record.agent }}</b></span><span>Office <b>{{ record.state }}</b></span></div></div>
+                    </td></tr>
+                  </ng-container>
+                  <tr *ngIf="filteredRecords.length === 0"><td colspan="8"><div class="empty-state"><span class="empty-icon"><ion-icon name="search-outline"></ion-icon></span><b>No matching business records</b><span>Try another policy number, agent, or line of business.</span><button (click)="searchTerm = ''; searchChanged()">Clear search</button></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="table-footer"><span>Showing <b>{{ firstResult }}–{{ lastResult }}</b> of {{ filteredRecords.length }} records <em>·</em> Sample data</span>
+              <div class="pagination" aria-label="Business register pages"><button aria-label="Previous page" [disabled]="page === 1" (click)="goPage(page - 1)"><ion-icon name="chevron-back-outline"></ion-icon></button><button *ngFor="let p of pageNumbers" [class.current]="page === p" [attr.aria-label]="'Page ' + p" (click)="goPage(p)">{{ p }}</button><button aria-label="Next page" [disabled]="page === pageCount" (click)="goPage(page + 1)"><ion-icon name="chevron-forward-outline"></ion-icon></button></div>
+            </div>
+          </section>
+          <footer class="dashboard-footer"><span>© 2025 CICA Life of America</span><span>This dashboard contains fictional sample data for demonstration purposes.</span><span>Private agent workspace</span></footer>
+        </section>
+      </section>
+
+      <aside class="activity-rail" [class.rail-open]="activityOpen" aria-label="Recent activity">
+        <div class="activity-header"><div><p>YOUR WORKFLOW</p><h2>Recent activity</h2></div><button class="icon-button close-activity" aria-label="Close recent activity" (click)="toggleActivity()"><ion-icon name="close-outline"></ion-icon></button></div>
+        <div class="activity-summary"><span class="activity-count">08</span><span>Updates across your book<br><b>Today &amp; this week</b></span><span class="activity-live"></span></div>
+        <div class="activity-list">
+          <article class="activity-item" *ngFor="let activity of data.activities">
+            <span class="activity-symbol" [ngClass]="activity.type">
+              <ion-icon *ngIf="activity.type === 'issued'" name="checkmark-circle-outline"></ion-icon>
+              <ion-icon *ngIf="activity.type === 'submitted'" name="document-text-outline"></ion-icon>
+              <ion-icon *ngIf="activity.type === 'hold'" name="pause-circle-outline"></ion-icon>
+              <ion-icon *ngIf="activity.type === 'billing'" name="notifications-outline"></ion-icon>
+            </span>
+            <div class="activity-copy"><div class="activity-title-line"><b>{{ activity.title }}</b><span class="activity-label" [ngClass]="activity.type">{{ activity.type === 'issued' ? 'Issued' : activity.type === 'submitted' ? 'Submitted' : activity.type === 'hold' ? 'On hold' : 'Notice' }}</span></div><p>{{ activity.ref }} <span>·</span> {{ activity.person }}</p><p class="activity-desc">{{ activity.text }}</p><time>{{ activity.time }}</time></div>
+          </article>
+        </div>
+        <button class="all-activity" (click)="notify('You’re viewing all recent sample activity')">View all activity <ion-icon name="chevron-forward-outline"></ion-icon></button>
+      </aside>
+      <button class="activity-reopen" *ngIf="!activityOpen" (click)="toggleActivity()" aria-label="Open recent activity"><ion-icon name="notifications-outline"></ion-icon><span>Activity</span><i>8</i></button>
+      <div class="toast-message" *ngIf="toast" role="status"><span></span>{{ toast }}</div>
+    </main>
+  </ion-content>
+</ion-app>
