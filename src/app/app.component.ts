@@ -50,6 +50,13 @@ export class AppComponent {
     { name: 'Accident & Health', pct: 8, amount: '$198K', color: 'amber' },
     { name: 'Other', pct: 5, amount: '$124K', color: 'slate' }
   ];
+  readonly persistence = [
+    { m: '1 mo', v: 91 },
+    { m: '3 mo', v: 88 },
+    { m: '6 mo', v: 84 },
+    { m: '12 mo', v: 81 },
+    { m: '18 mo', v: 73 }
+  ];
   readonly monthly = [
     { title: 'Policies on hold', value: '24', change: '-4%', icon: 'time-outline', tone: 'amber', bars: [18, 25, 20, 30, 24, 34, 27, 39] },
     { title: 'Policies past due', value: '31', change: '-5%', icon: 'alert-circle-outline', tone: 'coral', bars: [23, 33, 28, 42, 36, 49, 40, 54] },
@@ -85,6 +92,9 @@ export class AppComponent {
     });
   }
   get pageCount(): number { return Math.max(1, Math.ceil(this.filteredRecords.length / this.pageSize)); }
+  get averagePersistence(): number {
+    return this.persistence.reduce((total, item) => total + item.v, 0) / this.persistence.length;
+  }
   get pageNumbers(): number[] { return Array.from({ length: this.pageCount }, (_, index) => index + 1); }
   get visibleRecords(): PolicyRecord[] { return this.filteredRecords.slice((this.page - 1) * this.pageSize, this.page * this.pageSize); }
   get firstResult(): number { return this.filteredRecords.length ? (this.page - 1) * this.pageSize + 1 : 0; }

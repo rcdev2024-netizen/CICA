@@ -72,11 +72,12 @@
             <article class="panel persistence-panel">
               <div class="panel-heading"><div><span class="panel-icon teal-icon"><ion-icon name="document-text-outline"></ion-icon></span><div><h2>Persistence</h2><p>Overall policy retention</p></div></div><button class="text-action" (click)="notify('Persistence is measured by policy duration')">View details <ion-icon name="chevron-forward-outline"></ion-icon></button></div>
               <div class="persistence-row">
-                <div class="persist-item" *ngFor="let item of [{m:'1 mo',v:91},{m:'3 mo',v:88},{m:'6 mo',v:84},{m:'12 mo',v:81},{m:'18 mo',v:73}]">
+                <div class="persist-item" *ngFor="let item of persistence">
                   <div class="progress-ring" [style.--progress]="item.v + '%'" [attr.data-tooltip]="item.m + ' persistence · ' + item.v + '% retained'" [attr.aria-label]="item.m + ' persistence: ' + item.v + '% retained'" tabindex="0"><span>{{ item.v }}<small>%</small></span></div><small>{{ item.m }}</small>
                 </div>
               </div>
               <p class="panel-footnote">Blue bubbles show persistence by policy age.</p>
+              <div class="persistence-overall"><span><b>Overall persistence</b><small>Average across all durations</small></span><strong>{{ averagePersistence | number:'1.1-1' }}%</strong></div>
             </article>
 
             <article class="panel trend-panel">

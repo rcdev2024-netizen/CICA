@@ -155,6 +155,11 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(22, 143, 192
 .progress-ring span { z-index: 1; font: 700 11px var(--font-display); color: #29465b; }
 .progress-ring span small { font: 600 7px var(--font-body); }
 .persistence-panel .panel-footnote { margin-top: 12px; }
+.persistence-overall { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; padding: 8px 10px; border: 1px solid #e5f0f1; border-radius: 6px; background: #f7fbfb; }
+.persistence-overall > span { display: flex; flex-direction: column; gap: 2px; }
+.persistence-overall b { color: #607b88; font-size: 8px; font-weight: 600; }
+.persistence-overall small { color: #98a8ae; font-size: 7px; }
+.persistence-overall strong { color: #16889f; font: 800 17px/1 var(--font-display); letter-spacing: -.03em; }
 .trend-panel { position: relative; }
 .trend-legend { display: flex; justify-content: flex-end; align-items: center; gap: 11px; color: #748994; font-size: 8px; margin: 7px 1px -1px; }
 .trend-legend span { display: flex; align-items: center; gap: 4px; }
