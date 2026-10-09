@@ -38,8 +38,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(22, 143, 192
 .brand-logo { width: 143px; height: auto; display: block; }
 .brand-divider { height: 35px; width: 1px; background: #dce5e8; }
 .brand-title { display: flex; flex-direction: column; gap: 3px; }
-.brand-title strong { text-transform: uppercase; letter-spacing: .055em; font: 800 11px var(--font-display); }
-.brand-title span { color: var(--muted); font-size: 10px; }
+.brand-title strong { color: var(--ink-2); font: 700 13px/1.2 var(--font-display); letter-spacing: -.02em; }
+.brand-title span { color: var(--muted); font-size: 10px; line-height: 1.3; }
 .profile-tools { display: flex; align-items: center; gap: 20px; margin-left: auto; }
 .icon-button { border: 0; border-radius: 50%; background: transparent; color: #657c8a; display: inline-grid; place-items: center; cursor: pointer; transition: background .2s, color .2s; }
 .icon-button:hover { background: #edf5f6; color: var(--teal); }
