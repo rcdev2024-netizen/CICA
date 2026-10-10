@@ -10,7 +10,7 @@ import {
   documentTextOutline, downloadOutline, ellipsisHorizontal, filterOutline, menuOutline,
   notificationsOutline, pauseCircleOutline, peopleOutline, refreshOutline, searchOutline,
   shieldCheckmarkOutline, timeOutline, trendingUpOutline, walletOutline,
-  arrowForwardOutline, helpCircleOutline
+  arrowForwardOutline, helpCircleOutline, moonOutline, sunnyOutline
 } from 'ionicons/icons';
 import { AgentRosterRecord, MockDataService, PolicyRecord } from './mock-data.service';
 
@@ -59,6 +59,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   expandedAgentNumber = '';
   activityOpen = typeof window !== 'undefined' && window.matchMedia('(min-width: 701px)').matches;
   refreshing = false;
+  darkMode = false;
   profileMenuOpen = false;
   tourWelcomeOpen = false;
   tourActive = false;
@@ -117,13 +118,14 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   constructor(data: MockDataService) {
     this.data = data;
+    this.darkMode = this.readDarkModePreference();
     addIcons({
       alertCircleOutline, arrowDownOutline, arrowUpOutline, calendarOutline, checkmarkCircleOutline,
       chevronBackOutline, chevronDownOutline, chevronForwardOutline, closeOutline, cloudUploadOutline,
       documentTextOutline, downloadOutline, ellipsisHorizontal, filterOutline, menuOutline,
       notificationsOutline, pauseCircleOutline, peopleOutline, refreshOutline, searchOutline,
       shieldCheckmarkOutline, timeOutline, trendingUpOutline, walletOutline,
-      arrowForwardOutline, helpCircleOutline, checkmarkOutline
+      arrowForwardOutline, helpCircleOutline, checkmarkOutline, moonOutline, sunnyOutline
     });
   }
 
@@ -362,6 +364,17 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   toggleActivity(): void { this.activityOpen = !this.activityOpen; }
   openActivity(): void { this.activityOpen = true; }
   toggleProfileMenu(): void { this.profileMenuOpen = !this.profileMenuOpen; }
+  toggleDarkMode(): void {
+    const previousMode = this.darkMode;
+    this.darkMode = !previousMode;
+    try {
+      window.localStorage.setItem('cica-dashboard-theme', this.darkMode ? 'dark' : 'light');
+    } catch (error) {
+      this.darkMode = previousMode;
+      console.error('Could not save dashboard theme preference.', error);
+      this.notify('Your theme preference could not be saved.');
+    }
+  }
   beginTour(): void {
     this.tourWelcomeOpen = false;
     this.tourInitialActivityOpen = this.activityOpen;
@@ -716,6 +729,16 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     } catch (error) {
       console.error('Could not save dashboard tour preference.', error);
       this.notify('Tour progress could not be saved. You can replay the tour from your profile menu.');
+    }
+  }
+
+  private readDarkModePreference(): boolean {
+    if (typeof window === 'undefined') return false;
+    try {
+      return window.localStorage.getItem('cica-dashboard-theme') === 'dark';
+    } catch (error) {
+      console.error('Could not read dashboard theme preference.', error);
+      return false;
     }
   }
 }

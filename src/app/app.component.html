@@ -1,4 +1,4 @@
-<ion-app>
+<ion-app [class.dark-theme]="darkMode">
   <ion-content [fullscreen]="true">
     <main class="app-shell" [class.activity-collapsed]="!activityOpen">
       <section class="dashboard-area">
@@ -20,6 +20,7 @@
             </button>
             <div class="profile-menu" *ngIf="profileMenuOpen" data-tour="profile-menu" role="menu">
               <div><b>Gina Graber</b><small>{{ dashboardMode === 'agency' ? 'Agency admin' : 'Agent' }}</small></div>
+              <button role="menuitem" class="theme-menu-item" [attr.aria-pressed]="darkMode" (click)="toggleDarkMode()"><ion-icon [name]="darkMode ? 'sunny-outline' : 'moon-outline'"></ion-icon>{{ darkMode ? 'Light mode' : 'Dark mode' }}<span>{{ darkMode ? 'On' : 'Off' }}</span></button>
               <button role="menuitem" (click)="startTour()"><ion-icon name="help-circle-outline"></ion-icon>Take a Tour</button>
             </div>
           </div>
