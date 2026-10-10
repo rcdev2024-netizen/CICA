@@ -463,15 +463,15 @@ button.tour-primary.is-clicking::after { border-color: rgba(255,255,255,.35); bo
   .profile-copy small { font-size: 8px; }
   .profile-button > ion-icon { display: block; font-size: 12px; margin-left: 0; }
   .workspace { padding: 13px 14px calc(70px + env(safe-area-inset-bottom)); }
-  .filter-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 4px; margin-bottom: 5px; }
+  .filter-row { display: grid; grid-template-columns: minmax(0, 1fr) 32px; gap: 4px; margin-bottom: 5px; }
   .range-control { min-width: 0; grid-column: 1 / -1; height: 36px; font-size: 10px; }
   .filter-spacer { display: none; }
-  .period-switch { justify-self: start; height: 33px; min-width: 0; gap: 1px; }
-  .period-switch button { padding: 0 4px; font-size: 8px; }
+  .period-switch { width: 100%; height: 33px; min-width: 0; gap: 1px; }
+  .period-switch button { flex: 1; min-width: 0; padding: 0 4px; font-size: 8px; }
   .dashboard-mode-switch { justify-self: start; padding: 2px; }
   .dashboard-mode-switch button { min-height: 26px; padding: 0 5px; font-size: 8px; }
   .last-updated { display: none; }
-  .refresh-button { grid-column: 3; justify-self: end; width: 32px; height: 33px; padding: 0; justify-content: center; }
+  .refresh-button { grid-column: 2; justify-self: end; width: 32px; height: 33px; padding: 0; justify-content: center; }
   .refresh-button span { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
   .range-caption { margin-top: 4px; margin-bottom: 9px; font-size: 8px; }
   .custom-range { width: 100%; flex-wrap: wrap; }
@@ -541,7 +541,7 @@ button.tour-primary.is-clicking::after { border-color: rgba(255,255,255,.35); bo
   .table-footer { min-height: 43px; font-size: 7px; gap: 4px; }
   .pagination { gap: 3px; }
   .pagination button { min-width: 22px; height: 22px; font-size: 8px; }
-  .dashboard-footer { position: fixed; z-index: 18; right: 0; bottom: 0; left: 0; min-height: 46px; align-items: center; gap: 9px; padding: 8px 14px calc(8px + env(safe-area-inset-bottom)); border-top: 1px solid #e1e9eb; background: rgba(255,255,255,.97); box-shadow: 0 -4px 16px rgba(23,53,69,.06); font-size: 7px; backdrop-filter: blur(8px); }
+  .dashboard-footer { position: fixed; z-index: 18; right: 0; bottom: 0; left: 0; width: 100%; min-height: 46px; align-items: center; gap: 9px; padding: 8px 14px calc(8px + env(safe-area-inset-bottom)); border-top: 1px solid #e1e9eb; background: rgba(255,255,255,.97); box-shadow: 0 -4px 16px rgba(23,53,69,.06); font-size: 7px; backdrop-filter: blur(8px); }
   .dashboard-footer span:nth-child(2) { margin-left: auto; text-align: right; }
   .dashboard-footer span:last-child { display: none; }
   .activity-rail { z-index: 30; position: fixed; top: 0; bottom: 0; right: 0; width: min(340px, calc(100vw - 34px)); height: 100dvh; box-shadow: -15px 0 35px rgba(23,53,69,.12); transform: translateX(105%); opacity: 1; transition: transform .25s ease; }
