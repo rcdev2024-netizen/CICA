@@ -1,7 +1,7 @@
 import { Directive, HostBinding, HostListener, OnDestroy } from '@angular/core';
 
 @Directive({
-  selector: 'button',
+  selector: 'button:not([data-no-spinner])',
   standalone: true
 })
 export class ClickSpinnerDirective implements OnDestroy {

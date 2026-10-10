@@ -411,6 +411,15 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.skipTour();
   }
 
+  @HostListener('document:click', ['$event'])
+  closeProfileMenuOnOutsideClick(event: MouseEvent): void {
+    if (!this.profileMenuOpen) return;
+    const target = event.target;
+    if (target instanceof Element && !target.closest('[data-profile-menu-surface]')) {
+      this.profileMenuOpen = false;
+    }
+  }
+
   refresh(): void {
     if (this.refreshing) return;
     this.refreshing = true;
@@ -469,8 +478,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       },
       {
         target: 'dashboard-mode',
-        title: 'Agent and agency views',
-        description: 'This walkthrough will show both the individual Agent and Agency dashboards. In a connected account, the views available here depend on your access.',
+        title: 'Switch dashboard views',
+        description: 'Use this Agent / Agency selector in the profile menu to switch reporting views. The walkthrough covers each view; in a connected account, your available choice depends on your access.',
         mode: 'agent'
       },
       {
@@ -594,9 +603,15 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         mode: 'agent'
       },
       {
+        target: 'profile-theme-mode',
+        title: 'Dark and light themes',
+        description: 'This profile-menu option switches between dark and light appearance. Your selection is remembered in this browser.',
+        mode: 'agent'
+      },
+      {
         target: 'profile-menu',
-        title: 'Profile and replay',
-        description: 'The profile menu identifies the signed-in demo user and includes Take a Tour, so you can replay this walkthrough whenever you need it. Account settings are not part of this demo.',
+        title: 'Profile options and replay',
+        description: 'This menu shows the signed-in demo profile, the Agent / Agency view selector, the appearance setting, and Take a Tour to replay the walkthrough.',
         mode: 'agent'
       }
     ];
@@ -623,7 +638,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     }
     if (step.mode && this.dashboardMode !== step.mode) this.dashboardMode = step.mode;
     this.tourStepIndex = index;
-    this.profileMenuOpen = step.target === 'profile-menu';
+    this.profileMenuOpen = ['dashboard-mode', 'profile-theme-mode', 'profile-menu'].includes(step.target);
     this.activityOpen = this.tourInitialActivityOpen || step.target === 'recent-activity';
     clearTimeout(this.tourStepTimer);
     const locateTarget = (): void => {

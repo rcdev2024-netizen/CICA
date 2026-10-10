@@ -15,13 +15,22 @@
             <button class="icon-button notification-button" data-tour="notification-bell" aria-label="Open recent activity" (click)="openActivity()">
               <ion-icon name="notifications-outline"></ion-icon><i></i>
             </button>
-            <button class="profile-button" data-tour="profile-button" aria-label="Profile: Gina Graber" aria-haspopup="menu" [attr.aria-expanded]="profileMenuOpen" (click)="toggleProfileMenu()">
-              <span class="avatar">GG</span><span class="profile-copy"><b>Gina Graber</b><small>{{ dashboardMode === 'agency' ? 'Agency admin' : 'Agent' }}</small></span><ion-icon name="chevron-down-outline"></ion-icon>
-            </button>
-            <div class="profile-menu" *ngIf="profileMenuOpen" data-tour="profile-menu" role="menu">
-              <div><b>Gina Graber</b><small>{{ dashboardMode === 'agency' ? 'Agency admin' : 'Agent' }}</small></div>
-              <button role="menuitem" class="theme-menu-item" [attr.aria-pressed]="darkMode" (click)="toggleDarkMode()"><ion-icon [name]="darkMode ? 'sunny-outline' : 'moon-outline'"></ion-icon>{{ darkMode ? 'Light mode' : 'Dark mode' }}<span>{{ darkMode ? 'On' : 'Off' }}</span></button>
-              <button role="menuitem" (click)="startTour()"><ion-icon name="help-circle-outline"></ion-icon>Take a Tour</button>
+            <div class="profile-menu-anchor" data-profile-menu-surface>
+              <button class="profile-button" data-tour="profile-button" data-no-spinner aria-label="Profile: Gina Graber" aria-haspopup="menu" [attr.aria-expanded]="profileMenuOpen" (click)="toggleProfileMenu()">
+                <span class="avatar">GG</span><span class="profile-copy"><b>Gina Graber</b><small>{{ dashboardMode === 'agency' ? 'Agency admin' : 'Agent' }}</small></span><ion-icon name="chevron-down-outline"></ion-icon>
+              </button>
+              <div class="profile-menu" *ngIf="profileMenuOpen" data-tour="profile-menu" role="menu">
+                <div class="profile-menu-identity"><b>Gina Graber</b><small>{{ dashboardMode === 'agency' ? 'Agency admin' : 'Agent' }}</small></div>
+                <div class="profile-menu-section">
+                  <span class="profile-menu-label">Dashboard view</span>
+                  <div class="dashboard-mode-switch" data-tour="dashboard-mode" role="group" aria-label="Choose dashboard">
+                    <button role="menuitemradio" [class.active]="dashboardMode === 'agent'" [attr.aria-checked]="dashboardMode === 'agent'" (click)="setDashboardMode('agent')">Agent</button>
+                    <button role="menuitemradio" [class.active]="dashboardMode === 'agency'" [attr.aria-checked]="dashboardMode === 'agency'" (click)="setDashboardMode('agency')">Agency</button>
+                  </div>
+                </div>
+                <button role="menuitem" class="theme-menu-item" data-tour="profile-theme-mode" [attr.aria-pressed]="darkMode" (click)="toggleDarkMode()"><ion-icon [name]="darkMode ? 'sunny-outline' : 'moon-outline'"></ion-icon>{{ darkMode ? 'Light mode' : 'Dark mode' }}<span>{{ darkMode ? 'On' : 'Off' }}</span></button>
+                <button role="menuitem" (click)="startTour()"><ion-icon name="help-circle-outline"></ion-icon>Take a Tour</button>
+              </div>
             </div>
           </div>
         </header>
@@ -35,10 +44,6 @@
             </div>
             <div class="period-switch" data-tour="period-filters" role="group" aria-label="Dashboard date period">
               <button *ngFor="let item of periods" [class.active]="period === item" [attr.aria-pressed]="period === item" (click)="setPeriod(item)">{{ item }}</button>
-            </div>
-            <div class="dashboard-mode-switch" data-tour="dashboard-mode" role="group" aria-label="Choose dashboard">
-              <button [class.active]="dashboardMode === 'agent'" [attr.aria-pressed]="dashboardMode === 'agent'" (click)="setDashboardMode('agent')">Agent</button>
-              <button [class.active]="dashboardMode === 'agency'" [attr.aria-pressed]="dashboardMode === 'agency'" (click)="setDashboardMode('agency')">Agency</button>
             </div>
             <div class="filter-spacer"></div>
             <div class="last-updated">Last updated <b>{{ lastUpdated }}</b></div>
