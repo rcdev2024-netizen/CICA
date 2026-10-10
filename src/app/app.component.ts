@@ -1,17 +1,25 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, HostListener, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonApp, IonContent, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { ClickSpinnerDirective } from './click-spinner.directive';
 import {
-  alertCircleOutline, arrowDownOutline, arrowUpOutline, calendarOutline, checkmarkCircleOutline,
+  alertCircleOutline, arrowDownOutline, arrowUpOutline, calendarOutline, checkmarkCircleOutline, checkmarkOutline,
   chevronBackOutline, chevronDownOutline, chevronForwardOutline, closeOutline, cloudUploadOutline,
   documentTextOutline, downloadOutline, ellipsisHorizontal, filterOutline, menuOutline,
   notificationsOutline, pauseCircleOutline, peopleOutline, refreshOutline, searchOutline,
-  shieldCheckmarkOutline, timeOutline, trendingUpOutline, walletOutline
+  shieldCheckmarkOutline, timeOutline, trendingUpOutline, walletOutline,
+  arrowForwardOutline, helpCircleOutline, checkmarkOutline
 } from 'ionicons/icons';
 import { AgentRosterRecord, MockDataService, PolicyRecord } from './mock-data.service';
+
+interface DashboardTourStep {
+  target: string;
+  title: string;
+  description: string;
+  mode?: 'agent' | 'agency';
+}
 
 type DashboardKpi = {
   title: string;
@@ -29,7 +37,7 @@ type DashboardKpi = {
   imports: [CommonModule, FormsModule, IonApp, IonContent, IonIcon, ClickSpinnerDirective],
   templateUrl: './app.component.html'
 })
-export class AppComponent {
+export class AppComponent implements AfterViewInit, OnDestroy {
   dashboardMode: 'agent' | 'agency' = 'agent';
   productionScope: 'overall' | 'agency' | 'agent' = 'agency';
   agentNameFilter = '';
@@ -51,9 +59,29 @@ export class AppComponent {
   expandedAgentNumber = '';
   activityOpen = typeof window !== 'undefined' && window.matchMedia('(min-width: 701px)').matches;
   refreshing = false;
+  profileMenuOpen = false;
+  tourWelcomeOpen = false;
+  tourActive = false;
+  tourSteps: DashboardTourStep[] = [];
+  tourStepIndex = 0;
+  viewportWidth = 0;
+  viewportHeight = 0;
+  tourSpotlight = { left: 0, top: 0, width: 0, height: 0 };
+  tourPopover = { left: 0, top: 0 };
   lastUpdated = 'Jul 31, 2026 · 10:24 AM';
   toast = '';
   private toastTimer?: ReturnType<typeof setTimeout>;
+  private tourStartupTimer?: ReturnType<typeof setTimeout>;
+  private tourInitialActivityOpen = false;
+  private tourInitialDashboardMode: 'agent' | 'agency' = 'agent';
+  private tourInitialPeriod = 'YTD';
+  private tourInitialCustomDates = false;
+  private tourPreviewingCustomRange = false;
+  private tourLayoutFrame = 0;
+  private tourStepTimer?: ReturnType<typeof setTimeout>;
+  private readonly tourStorageKey = 'cica-dashboard-tour-v1:Gina Graber';
+  private readonly onTourResize = (): void => this.queueTourLayout();
+  private readonly onTourScroll = (): void => this.queueTourLayout();
 
   readonly periods = ['Month', 'Quarter', 'YTD', 'Custom'];
   readonly kpis: DashboardKpi[] = [
@@ -94,9 +122,32 @@ export class AppComponent {
       chevronBackOutline, chevronDownOutline, chevronForwardOutline, closeOutline, cloudUploadOutline,
       documentTextOutline, downloadOutline, ellipsisHorizontal, filterOutline, menuOutline,
       notificationsOutline, pauseCircleOutline, peopleOutline, refreshOutline, searchOutline,
-      shieldCheckmarkOutline, timeOutline, trendingUpOutline, walletOutline
+      shieldCheckmarkOutline, timeOutline, trendingUpOutline, walletOutline,
+      arrowForwardOutline, helpCircleOutline, checkmarkOutline
     });
   }
+
+  ngAfterViewInit(): void {
+    window.addEventListener('resize', this.onTourResize);
+    document.addEventListener('scroll', this.onTourScroll, true);
+    this.tourStartupTimer = setTimeout(() => {
+      if (this.dashboardMode === 'agent' && !this.readTourStatus()) {
+        this.tourWelcomeOpen = true;
+        requestAnimationFrame(() => document.querySelector<HTMLElement>('[data-tour-focus]')?.focus());
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('resize', this.onTourResize);
+    document.removeEventListener('scroll', this.onTourScroll, true);
+    if (this.tourLayoutFrame) cancelAnimationFrame(this.tourLayoutFrame);
+    clearTimeout(this.tourStepTimer);
+    clearTimeout(this.tourStartupTimer);
+    clearTimeout(this.toastTimer);
+  }
+
+  get currentTourStep(): DashboardTourStep | undefined { return this.tourSteps[this.tourStepIndex]; }
 
   get filteredRecords(): PolicyRecord[] {
     const term = this.searchTerm.trim().toLowerCase();
@@ -310,6 +361,43 @@ export class AppComponent {
   }
   toggleActivity(): void { this.activityOpen = !this.activityOpen; }
   openActivity(): void { this.activityOpen = true; }
+  toggleProfileMenu(): void { this.profileMenuOpen = !this.profileMenuOpen; }
+  beginTour(): void {
+    this.tourWelcomeOpen = false;
+    this.tourInitialActivityOpen = this.activityOpen;
+    this.tourInitialDashboardMode = this.dashboardMode;
+    this.tourInitialPeriod = this.period;
+    this.tourInitialCustomDates = this.showCustomDates;
+    this.tourSteps = this.createTourSteps();
+    this.tourActive = true;
+    this.tourStepIndex = 0;
+    this.saveTourStatus('started');
+    this.presentTourStep(0, 1);
+  }
+  startTour(): void {
+    this.profileMenuOpen = false;
+    this.beginTour();
+  }
+  nextTourStep(): void {
+    if (this.tourStepIndex >= this.tourSteps.length - 1) {
+      this.finishTour();
+      return;
+    }
+    this.presentTourStep(this.tourStepIndex + 1, 1);
+  }
+  previousTourStep(): void {
+    if (this.tourStepIndex > 0) this.presentTourStep(this.tourStepIndex - 1, -1);
+  }
+  skipTour(): void { this.closeTour('dismissed'); }
+  finishTour(): void { this.closeTour('completed'); }
+
+  @HostListener('document:keydown.escape', ['$event'])
+  closeTourOnEscape(event: KeyboardEvent): void {
+    if (!this.tourActive && !this.tourWelcomeOpen) return;
+    event.preventDefault();
+    this.skipTour();
+  }
+
   refresh(): void {
     if (this.refreshing) return;
     this.refreshing = true;
@@ -345,4 +433,289 @@ export class AppComponent {
     return '$' + Math.round(value).toLocaleString('en-US');
   }
   trackByPolicy(_index: number, row: PolicyRecord): string { return row.policy; }
+
+  private createTourSteps(): DashboardTourStep[] {
+    const steps: DashboardTourStep[] = [
+      {
+        target: 'date-range',
+        title: 'Reporting dates',
+        description: 'This display shows the date range behind the dashboard view. Choose a period below to update it; Custom reveals fields for specific start and end dates.',
+        mode: 'agent'
+      },
+      {
+        target: 'period-filters',
+        title: 'Choose a reporting period',
+        description: 'Month, Quarter, and YTD set a preset range. Custom reveals date fields and Apply range. Compare periods to review the dashboard in the timeframe you need.',
+        mode: 'agent'
+      },
+      {
+        target: 'custom-range',
+        title: 'Set custom dates',
+        description: 'The date fields let you enter a start and end date. Apply range validates the dates and updates the displayed reporting period.',
+        mode: 'agent'
+      },
+      {
+        target: 'dashboard-mode',
+        title: 'Agent and agency views',
+        description: 'This walkthrough will show both the individual Agent and Agency dashboards. In a connected account, the views available here depend on your access.',
+        mode: 'agent'
+      },
+      {
+        target: 'refresh',
+        title: 'Refresh the dashboard',
+        description: 'Refresh runs the dashboard’s sample refresh action and updates the Last updated timestamp. This demo does not fetch data from a live service.',
+        mode: 'agent'
+      },
+      ...this.kpis.map((kpi, index) => ({
+        target: `kpi-${index}`,
+        title: kpi.title,
+        description: `This card shows the dashboard’s sample ${kpi.title.toLowerCase()} figure. The demo values are illustrative and are not recalculated from policy records when you change the reporting period.`,
+        mode: 'agent' as const
+      })),
+      {
+        target: 'business-mix',
+        title: 'Sales and business mix',
+        description: 'This chart compares displayed sales share across product lines. The percentages and amounts give a quick view of the mix; the panel labels the figures YTD and uses sample data.',
+        mode: 'agent'
+      },
+      {
+        target: 'persistence',
+        title: 'Policy persistence',
+        description: 'Each ring shows the displayed retention percentage at a policy-age milestone from 1 to 18 months. The overall figure below is the average of those five sample percentages.',
+        mode: 'agent'
+      },
+      {
+        target: 'growth-trend',
+        title: 'Issued and submitted trend',
+        description: 'Compare the issued and submitted series across the months shown on the horizontal axis. The vertical labels provide the chart’s scale; use the lines to compare direction over time.',
+        mode: 'agent'
+      },
+      ...this.monthly.map((item, index) => ({
+        target: `operational-${index}`,
+        title: item.title,
+        description: `This card summarizes ${item.title.toLowerCase()} and shows a short monthly activity chart. Use the month labels and bar heights to compare the displayed sample values; View details currently shows a contextual message.`,
+        mode: 'agent' as const
+      })),
+      {
+        target: 'business-register',
+        title: 'Business register',
+        description: 'Search the displayed policy records, sort columns, expand a record for more fields, and export the current results as a CSV. On smaller screens, tap a policy row to expand it.',
+        mode: 'agent'
+      },
+      {
+        target: 'agency-filters',
+        title: 'Filter agency production',
+        description: 'Choose overall, agency, or agent production, then search by agent name. The KPIs, agency trend cards, and roster update to reflect the selected view.',
+        mode: 'agency'
+      },
+      {
+        target: 'kpi-0',
+        title: 'Policies in period',
+        description: 'This is the count of policy records matching the current production view and reporting dates. Search or filter the Business register to inspect the records behind the sample count.',
+        mode: 'agency'
+      },
+      {
+        target: 'kpi-1',
+        title: 'Face amount',
+        description: 'This total adds the face amount values on policy records matching the current production view and reporting dates. It is calculated from the demo records.',
+        mode: 'agency'
+      },
+      {
+        target: 'kpi-2',
+        title: 'Producing agents',
+        description: 'This count reflects unique agents with matching records whose status is Active or Submitted in this dashboard’s sample data.',
+        mode: 'agency'
+      },
+      {
+        target: 'kpi-3',
+        title: 'Estimated commissions',
+        description: 'This estimate sums matching record premiums using each agent’s displayed roster commission percentage. It is sample data, not a live commission statement.',
+        mode: 'agency'
+      },
+      ...this.agencyMonthlyCards.map((item, index) => ({
+        target: `agency-trend-${index}`,
+        title: item.title,
+        description: `This card shows the ${item.title.toLowerCase()} summary and monthly bars for the selected production view. Review the month labels and values to compare the displayed sample trend.`,
+        mode: 'agency' as const
+      })),
+      {
+        target: 'agent-data',
+        title: 'Agent data',
+        description: 'These bars compare roster size, producing agents, and downlines for the selected production view. Bar length is scaled against the largest count in this card.',
+        mode: 'agency'
+      },
+      {
+        target: 'agent-roster',
+        title: 'Agent roster',
+        description: 'Search and sort the roster, expand an agent to review the displayed appointment details, and export roster rows as a CSV. The roster is shown in the agency view.',
+        mode: 'agency'
+      },
+      {
+        target: 'business-register',
+        title: 'Agency business register',
+        description: 'This register shows policy records for the selected agency production view. Search, sort, expand records, or export the current results as a CSV.',
+        mode: 'agency'
+      },
+      {
+        target: 'view-details',
+        title: 'View details actions',
+        description: 'These links are repeated across dashboard cards. In this sample dashboard they show a short contextual message; they do not open a separate report or page.',
+        mode: 'agent'
+      },
+      {
+        target: 'widget-actions',
+        title: 'Widget action menu',
+        description: 'The ellipsis on a KPI card shows a short message about that metric and the selected period. It is a demo action, not a full settings menu.',
+        mode: 'agent'
+      },
+      {
+        target: 'notification-bell',
+        title: 'Notifications and activity',
+        description: 'Select the bell to open the Recent activity drawer, where the dashboard lists sample policy and application events.',
+        mode: 'agent'
+      },
+      {
+        target: 'recent-activity',
+        title: 'Recent activity',
+        description: 'Review the listed sample policy, application, hold, and billing events. Close the drawer with its X; View all activity currently displays a demo message.',
+        mode: 'agent'
+      },
+      {
+        target: 'profile-menu',
+        title: 'Profile and replay',
+        description: 'The profile menu identifies the signed-in demo user and includes Take a Tour, so you can replay this walkthrough whenever you need it. Account settings are not part of this demo.',
+        mode: 'agent'
+      }
+    ];
+    return steps;
+  }
+
+  private presentTourStep(index: number, direction: 1 | -1): void {
+    if (!this.tourActive) return;
+    if (index < 0 || index >= this.tourSteps.length) {
+      this.closeTour('dismissed');
+      this.notify('The remaining tour items are not available in this dashboard view.');
+      return;
+    }
+
+    const step = this.tourSteps[index];
+    if (step.target === 'custom-range') {
+      this.period = 'Custom';
+      this.showCustomDates = true;
+      this.tourPreviewingCustomRange = true;
+    } else if (this.tourPreviewingCustomRange) {
+      this.period = this.tourInitialPeriod;
+      this.showCustomDates = this.tourInitialCustomDates;
+      this.tourPreviewingCustomRange = false;
+    }
+    if (step.mode && this.dashboardMode !== step.mode) this.dashboardMode = step.mode;
+    this.tourStepIndex = index;
+    this.profileMenuOpen = step.target === 'profile-menu';
+    this.activityOpen = this.tourInitialActivityOpen || step.target === 'recent-activity';
+    clearTimeout(this.tourStepTimer);
+    const locateTarget = (): void => {
+      if (!this.tourActive) return;
+      const target = document.querySelector<HTMLElement>(`[data-tour="${step.target}"]`);
+      if (!target || !target.isConnected || target.getClientRects().length === 0) {
+        this.presentTourStep(index + direction, direction);
+        return;
+      }
+      target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+      this.queueTourLayout();
+    };
+    if (step.target === 'recent-activity') {
+      this.tourStepTimer = setTimeout(() => requestAnimationFrame(locateTarget), 280);
+    } else {
+      requestAnimationFrame(locateTarget);
+    }
+  }
+
+  private queueTourLayout(): void {
+    if (!this.tourActive || this.tourLayoutFrame) return;
+    this.tourLayoutFrame = requestAnimationFrame(() => {
+      this.tourLayoutFrame = 0;
+      this.updateTourLayout();
+    });
+  }
+
+  private updateTourLayout(): void {
+    if (!this.tourActive || !this.currentTourStep) return;
+    this.viewportWidth = window.innerWidth;
+    this.viewportHeight = window.innerHeight;
+    const target = document.querySelector<HTMLElement>(`[data-tour="${this.currentTourStep.target}"]`);
+    if (!target || !target.isConnected || target.getClientRects().length === 0) {
+      this.presentTourStep(this.tourStepIndex + 1, 1);
+      return;
+    }
+
+    const rect = target.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+      this.presentTourStep(this.tourStepIndex + 1, 1);
+      return;
+    }
+    const padding = 7;
+    const left = Math.max(4, rect.left - padding);
+    const top = Math.max(4, rect.top - padding);
+    this.tourSpotlight = {
+      left,
+      top,
+      width: Math.min(window.innerWidth - left - 4, rect.width + padding * 2),
+      height: Math.min(window.innerHeight - top - 4, rect.height + padding * 2)
+    };
+
+    const popover = document.querySelector<HTMLElement>('.tour-popover');
+    const popoverWidth = popover?.offsetWidth || Math.min(360, window.innerWidth - 32);
+    const popoverHeight = popover?.offsetHeight || 240;
+    const gap = 17;
+    const belowSpace = window.innerHeight - rect.bottom - gap;
+    const aboveSpace = rect.top - gap;
+    const placeBelow = belowSpace >= popoverHeight || belowSpace >= aboveSpace;
+    const preferredTop = placeBelow ? rect.bottom + gap : rect.top - popoverHeight - gap;
+    const preferredLeft = rect.left + rect.width / 2 - popoverWidth / 2;
+    this.tourPopover = {
+      left: Math.max(12, Math.min(window.innerWidth - popoverWidth - 12, preferredLeft)),
+      top: Math.max(12, Math.min(window.innerHeight - popoverHeight - 12, preferredTop))
+    };
+  }
+
+  private closeTour(status: 'completed' | 'dismissed'): void {
+    if (!this.tourActive && !this.tourWelcomeOpen) return;
+    this.saveTourStatus(status);
+    this.tourActive = false;
+    this.tourWelcomeOpen = false;
+    this.profileMenuOpen = false;
+    this.activityOpen = this.tourInitialActivityOpen;
+    this.dashboardMode = this.tourInitialDashboardMode;
+    this.period = this.tourInitialPeriod;
+    this.showCustomDates = this.tourInitialCustomDates;
+    this.tourPreviewingCustomRange = false;
+    this.tourSteps = [];
+    this.tourStepIndex = 0;
+    clearTimeout(this.tourStepTimer);
+    if (this.tourLayoutFrame) {
+      cancelAnimationFrame(this.tourLayoutFrame);
+      this.tourLayoutFrame = 0;
+    }
+    requestAnimationFrame(() => document.querySelector<HTMLElement>('[data-tour="profile-button"]')?.focus());
+  }
+
+  private readTourStatus(): 'started' | 'completed' | 'dismissed' | null {
+    try {
+      const status = window.localStorage.getItem(this.tourStorageKey);
+      return status === 'started' || status === 'completed' || status === 'dismissed' ? status : null;
+    } catch (error) {
+      console.error('Could not read dashboard tour preference.', error);
+      this.notify('Tour preference could not be read. You can still take the tour from your profile menu.');
+      return null;
+    }
+  }
+
+  private saveTourStatus(status: 'started' | 'completed' | 'dismissed'): void {
+    try {
+      window.localStorage.setItem(this.tourStorageKey, status);
+    } catch (error) {
+      console.error('Could not save dashboard tour preference.', error);
+      this.notify('Tour progress could not be saved. You can replay the tour from your profile menu.');
+    }
+  }
 }

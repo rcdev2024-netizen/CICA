@@ -2,7 +2,7 @@
   <ion-content [fullscreen]="true">
     <main class="app-shell" [class.activity-collapsed]="!activityOpen">
       <section class="dashboard-area">
-        <header class="topbar">
+        <header class="topbar" data-tour="dashboard-header">
           <div class="brand-block">
             <img src="assets/cica-life-logo.png" alt="CICA Life of America" class="brand-logo">
             <span class="brand-divider"></span>
@@ -12,41 +12,45 @@
             </div>
           </div>
           <div class="profile-tools">
-            <button class="icon-button notification-button" aria-label="Open recent activity" (click)="openActivity()">
+            <button class="icon-button notification-button" data-tour="notification-bell" aria-label="Open recent activity" (click)="openActivity()">
               <ion-icon name="notifications-outline"></ion-icon><i></i>
             </button>
-            <button class="profile-button" aria-label="Profile: Gina Graber" (click)="notify('Signed in as Gina Graber')">
+            <button class="profile-button" data-tour="profile-button" aria-label="Profile: Gina Graber" aria-haspopup="menu" [attr.aria-expanded]="profileMenuOpen" (click)="toggleProfileMenu()">
               <span class="avatar">GG</span><span class="profile-copy"><b>Gina Graber</b><small>{{ dashboardMode === 'agency' ? 'Agency admin' : 'Agent' }}</small></span><ion-icon name="chevron-down-outline"></ion-icon>
             </button>
+            <div class="profile-menu" *ngIf="profileMenuOpen" data-tour="profile-menu" role="menu">
+              <div><b>Gina Graber</b><small>{{ dashboardMode === 'agency' ? 'Agency admin' : 'Agent' }}</small></div>
+              <button role="menuitem" (click)="startTour()"><ion-icon name="help-circle-outline"></ion-icon>Take a Tour</button>
+            </div>
           </div>
         </header>
 
         <section class="workspace">
           <div class="filter-row">
-            <div class="range-control">
+            <div class="range-control" data-tour="date-range">
               <ion-icon name="calendar-outline"></ion-icon>
               <span>{{ formatDate(customStart) }} – {{ formatDate(customEnd) }}</span>
               <ion-icon class="range-chevron" name="chevron-down-outline"></ion-icon>
             </div>
-            <div class="period-switch" role="group" aria-label="Dashboard date period">
+            <div class="period-switch" data-tour="period-filters" role="group" aria-label="Dashboard date period">
               <button *ngFor="let item of periods" [class.active]="period === item" [attr.aria-pressed]="period === item" (click)="setPeriod(item)">{{ item }}</button>
             </div>
-            <div class="dashboard-mode-switch" role="group" aria-label="Choose dashboard">
+            <div class="dashboard-mode-switch" data-tour="dashboard-mode" role="group" aria-label="Choose dashboard">
               <button [class.active]="dashboardMode === 'agent'" [attr.aria-pressed]="dashboardMode === 'agent'" (click)="setDashboardMode('agent')">Agent</button>
               <button [class.active]="dashboardMode === 'agency'" [attr.aria-pressed]="dashboardMode === 'agency'" (click)="setDashboardMode('agency')">Agency</button>
             </div>
             <div class="filter-spacer"></div>
             <div class="last-updated">Last updated <b>{{ lastUpdated }}</b></div>
-            <button class="refresh-button" [class.is-refreshing]="refreshing" (click)="refresh()" [disabled]="refreshing">
+            <button class="refresh-button" data-tour="refresh" [class.is-refreshing]="refreshing" (click)="refresh()" [disabled]="refreshing">
               <ion-icon name="refresh-outline"></ion-icon><span>{{ refreshing ? 'Updating' : 'Refresh' }}</span>
             </button>
           </div>
-          <div class="custom-range" *ngIf="showCustomDates">
+          <div class="custom-range" *ngIf="showCustomDates" data-tour="custom-range">
             <label>From <input type="date" [(ngModel)]="customStart" aria-label="Custom start date"></label>
             <label>To <input type="date" [(ngModel)]="customEnd" aria-label="Custom end date"></label>
             <button class="apply-range" (click)="applyCustomRange()">Apply range</button>
           </div>
-          <div class="agency-filter-row" *ngIf="dashboardMode === 'agency'">
+          <div class="agency-filter-row" data-tour="agency-filters" *ngIf="dashboardMode === 'agency'">
             <label class="production-select">
               <span>Production view</span>
               <select [(ngModel)]="productionScope" (ngModelChange)="productionScopeChanged()" aria-label="Production view">
@@ -63,8 +67,8 @@
           </div>
 
           <section class="kpi-grid" aria-label="Policy performance">
-            <article class="metric-card entrance" *ngFor="let kpi of dashboardKpis; let i = index" [style.--delay]="(i * 65) + 'ms'">
-              <div class="metric-heading"><span class="metric-icon" [ngClass]="kpi.tone"><ion-icon [name]="kpi.icon"></ion-icon></span><span>{{ kpi.title }}</span><button class="tiny-menu" [attr.aria-label]="'More about ' + kpi.title" (click)="notify(kpi.title + ' for ' + period + ' performance')"><ion-icon name="ellipsis-horizontal"></ion-icon></button></div>
+            <article class="metric-card entrance" *ngFor="let kpi of dashboardKpis; let i = index" [attr.data-tour]="'kpi-' + i" [style.--delay]="(i * 65) + 'ms'">
+              <div class="metric-heading"><span class="metric-icon" [ngClass]="kpi.tone"><ion-icon [name]="kpi.icon"></ion-icon></span><span>{{ kpi.title }}</span><button class="tiny-menu" [attr.data-tour]="i === 0 ? 'widget-actions' : null" [attr.aria-label]="'More about ' + kpi.title" (click)="notify(kpi.title + ' for ' + period + ' performance')"><ion-icon name="ellipsis-horizontal"></ion-icon></button></div>
               <div class="metric-value">{{ kpi.value }}</div>
               <div class="metric-footer">
                 <span class="change" [class.negative]="kpi.direction === 'down'" *ngIf="dashboardMode === 'agent'"><ion-icon [name]="kpi.direction === 'up' ? 'arrow-up-outline' : 'arrow-down-outline'"></ion-icon>{{ kpi.change }}</span>
@@ -76,8 +80,8 @@
           </section>
 
           <section class="insight-grid">
-            <article class="panel mix-panel">
-              <div class="panel-heading"><div><span class="panel-icon blue-icon"><ion-icon name="people-outline"></ion-icon></span><div><h2>Sales &amp; business mix</h2><p>YTD sales by line of business</p></div></div><button class="text-action" (click)="notify('Business mix reflects $2.48M in total sales')">View details <ion-icon name="chevron-forward-outline"></ion-icon></button></div>
+            <article class="panel mix-panel" data-tour="business-mix">
+              <div class="panel-heading"><div><span class="panel-icon blue-icon"><ion-icon name="people-outline"></ion-icon></span><div><h2>Sales &amp; business mix</h2><p>YTD sales by line of business</p></div></div><button class="text-action" data-tour="view-details" (click)="notify('Business mix reflects $2.48M in total sales')">View details <ion-icon name="chevron-forward-outline"></ion-icon></button></div>
               <div class="mix-content">
                 <div class="mix-rows">
                   <div class="mix-row" *ngFor="let line of mix">
@@ -92,7 +96,7 @@
               <p class="panel-footnote">Life remains your strongest line this year.</p>
             </article>
 
-            <article class="panel persistence-panel">
+            <article class="panel persistence-panel" data-tour="persistence">
               <div class="panel-heading"><div><span class="panel-icon teal-icon"><ion-icon name="document-text-outline"></ion-icon></span><div><h2>Persistence</h2><p>Overall policy retention</p></div></div><button class="text-action" (click)="notify('Persistence is measured by policy duration')">View details <ion-icon name="chevron-forward-outline"></ion-icon></button></div>
               <div class="persistence-row">
                 <div class="persist-item" *ngFor="let item of persistence">
@@ -103,7 +107,7 @@
               <div class="persistence-overall"><span><b>Overall persistence</b><small>Average across all durations</small></span><strong>{{ averagePersistence | number:'1.1-1' }}%</strong></div>
             </article>
 
-            <article class="panel trend-panel">
+            <article class="panel trend-panel" data-tour="growth-trend">
               <div class="panel-heading"><div><span class="panel-icon blue-icon"><ion-icon name="trending-up-outline"></ion-icon></span><div><h2>Growth trend</h2><p>Policies issued and submitted</p></div></div><button class="text-action" (click)="notify('Trend view updated for ' + period)">View details <ion-icon name="chevron-forward-outline"></ion-icon></button></div>
               <div class="trend-legend"><span><i class="dot issued"></i>Issued</span><span><i class="dot submitted"></i>Submitted</span></div>
               <div class="chart-area">
@@ -121,7 +125,7 @@
           </section>
 
           <section class="monthly-grid" aria-label="Operational monthly summaries" *ngIf="dashboardMode === 'agent'">
-            <article class="panel monthly-card" *ngFor="let item of monthly; let i = index">
+            <article class="panel monthly-card" *ngFor="let item of monthly; let i = index" [attr.data-tour]="'operational-' + i">
               <div class="monthly-top"><span class="panel-icon" [ngClass]="item.tone + '-icon'"><ion-icon [name]="item.icon"></ion-icon></span><button class="text-action" (click)="notify(item.title + ' details for ' + period)">View details <ion-icon name="chevron-forward-outline"></ion-icon></button></div>
               <h2>{{ item.title }}</h2>
               <div class="monthly-stat"><b>{{ item.value }}</b><span class="change" [class.negative]="item.change.startsWith('-')"><ion-icon [name]="item.change.startsWith('-') ? 'arrow-down-outline' : 'arrow-up-outline'"></ion-icon>{{ item.change }}</span><small>vs. last year</small></div>
@@ -129,7 +133,7 @@
             </article>
           </section>
           <section class="agency-monthly-grid" aria-label="Agency operating trends" *ngIf="dashboardMode === 'agency'">
-            <article class="panel agency-month-card" *ngFor="let item of agencyMonthlyCards">
+            <article class="panel agency-month-card" *ngFor="let item of agencyMonthlyCards; let i = index" [attr.data-tour]="'agency-trend-' + i">
               <div class="agency-month-heading">
                 <span class="panel-icon" [ngClass]="item.tone + '-icon'">
                   <ion-icon [name]="item.title === 'Policies on hold' ? 'time-outline' : item.title === 'Policies past due' ? 'alert-circle-outline' : item.title === 'Billing notifications' ? 'notifications-outline' : 'wallet-outline'"></ion-icon>
@@ -145,7 +149,7 @@
                 </div>
               </div>
             </article>
-            <article class="panel agency-month-card agency-data-card">
+            <article class="panel agency-month-card agency-data-card" data-tour="agent-data">
               <div class="agency-month-heading">
                 <span class="panel-icon blue-icon"><ion-icon name="people-outline"></ion-icon></span>
                 <h2>Agent data</h2>
@@ -160,7 +164,7 @@
             </article>
           </section>
 
-          <section class="panel register-panel">
+          <section class="panel register-panel" data-tour="business-register">
             <div class="register-header">
               <div class="register-title"><span class="panel-icon blue-icon"><ion-icon name="document-text-outline"></ion-icon></span><div><h2>Business register</h2><p>Search and manage your business records</p></div></div>
               <div class="register-actions">
@@ -208,7 +212,7 @@
               <div class="pagination" aria-label="Business register pages"><button aria-label="Previous page" [disabled]="page === 1" (click)="goPage(page - 1)"><ion-icon name="chevron-back-outline"></ion-icon></button><button *ngFor="let p of pageNumbers" [class.current]="page === p" [attr.aria-label]="'Page ' + p" (click)="goPage(p)">{{ p }}</button><button aria-label="Next page" [disabled]="page === pageCount" (click)="goPage(page + 1)"><ion-icon name="chevron-forward-outline"></ion-icon></button></div>
             </div>
           </section>
-          <section class="panel roster-panel" *ngIf="dashboardMode === 'agency'">
+          <section class="panel roster-panel" data-tour="agent-roster" *ngIf="dashboardMode === 'agency'">
             <div class="register-header roster-header">
               <div class="register-title">
                 <span class="panel-icon blue-icon"><ion-icon name="people-outline"></ion-icon></span>
@@ -295,7 +299,7 @@
         </section>
       </section>
 
-      <aside class="activity-rail" [class.rail-open]="activityOpen" aria-label="Recent activity">
+      <aside class="activity-rail" data-tour="recent-activity" [class.rail-open]="activityOpen" aria-label="Recent activity">
         <div class="activity-header"><div><p>YOUR WORKFLOW</p><h2>Recent activity</h2></div><button class="icon-button close-activity" aria-label="Close recent activity" (click)="toggleActivity()"><ion-icon name="close-outline"></ion-icon></button></div>
         <div class="activity-summary"><span class="activity-count">08</span><span>Updates across your book<br><b>Today &amp; this week</b></span><span class="activity-live"></span></div>
         <div class="activity-list">
@@ -315,4 +319,42 @@
     </main>
   </ion-content>
   <div class="toast-message" *ngIf="toast" role="status"><span></span>{{ toast }}</div>
+  <section class="tour-layer" *ngIf="tourWelcomeOpen || tourActive">
+    <div class="tour-welcome-backdrop" *ngIf="tourWelcomeOpen"></div>
+    <section class="tour-welcome" *ngIf="tourWelcomeOpen" role="dialog" aria-modal="true" aria-labelledby="tour-welcome-title">
+      <img src="assets/cica-life-logo.png" alt="CICA Life of America" class="tour-logo">
+      <span class="tour-eyebrow">WELCOME TO YOUR WORKSPACE</span>
+      <h2 id="tour-welcome-title">Your dashboard, at a glance</h2>
+      <p>Take a quick guided tour of the dashboard widgets, reporting controls, and recent activity. You can skip now and replay the tour any time from your profile menu.</p>
+      <div class="tour-welcome-actions">
+        <button class="tour-secondary" (click)="skipTour()">Skip Tour</button>
+        <button class="tour-primary" data-tour-focus (click)="beginTour()">Take the Tour <ion-icon name="arrow-forward-outline"></ion-icon></button>
+      </div>
+    </section>
+    <ng-container *ngIf="tourActive">
+      <svg class="tour-dimmer" [attr.viewBox]="'0 0 ' + viewportWidth + ' ' + viewportHeight" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <mask id="dashboard-tour-mask" maskUnits="userSpaceOnUse" [attr.x]="0" [attr.y]="0" [attr.width]="viewportWidth" [attr.height]="viewportHeight">
+            <rect [attr.width]="viewportWidth" [attr.height]="viewportHeight" fill="white"></rect>
+            <rect [attr.x]="tourSpotlight.left" [attr.y]="tourSpotlight.top" [attr.width]="tourSpotlight.width" [attr.height]="tourSpotlight.height" rx="9" fill="black"></rect>
+          </mask>
+        </defs>
+        <rect [attr.width]="viewportWidth" [attr.height]="viewportHeight" fill="rgba(15, 37, 51, .68)" mask="url(#dashboard-tour-mask)"></rect>
+      </svg>
+      <div class="tour-spotlight" [style.left.px]="tourSpotlight.left" [style.top.px]="tourSpotlight.top" [style.width.px]="tourSpotlight.width" [style.height.px]="tourSpotlight.height" aria-hidden="true"></div>
+      <section class="tour-popover" [style.left.px]="tourPopover.left" [style.top.px]="tourPopover.top" role="dialog" aria-modal="false" aria-labelledby="tour-step-title" aria-describedby="tour-step-description">
+        <div class="tour-progress-line"><span [style.width.%]="((tourStepIndex + 1) / tourSteps.length) * 100"></span></div>
+        <div class="tour-popover-content">
+          <div class="tour-popover-top"><span class="tour-step-count">STEP {{ tourStepIndex + 1 }} OF {{ tourSteps.length }}</span><button class="tour-close" aria-label="Skip tour" (click)="skipTour()"><ion-icon name="close-outline"></ion-icon></button></div>
+          <h2 id="tour-step-title">{{ currentTourStep?.title }}</h2>
+          <p id="tour-step-description">{{ currentTourStep?.description }}</p>
+          <div class="tour-actions">
+            <button class="tour-secondary" (click)="previousTourStep()" [disabled]="tourStepIndex === 0">Back</button>
+            <button class="tour-skip" (click)="skipTour()">Skip Tour</button>
+            <button class="tour-primary" (click)="nextTourStep()">{{ tourStepIndex === tourSteps.length - 1 ? 'Finish Tour' : 'Next' }}<ion-icon [name]="tourStepIndex === tourSteps.length - 1 ? 'checkmark-outline' : 'arrow-forward-outline'"></ion-icon></button>
+          </div>
+        </div>
+      </section>
+    </ng-container>
+  </section>
 </ion-app>

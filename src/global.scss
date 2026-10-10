@@ -55,6 +55,14 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(22, 143, 192
 .notification-button { width: 32px; height: 32px; font-size: 18px; position: relative; }
 .notification-button i { position: absolute; width: 6px; height: 6px; background: #dc8369; border: 1px solid white; border-radius: 50%; top: 5px; right: 6px; }
 .profile-button { display: flex; align-items: center; gap: 9px; background: transparent; border: 0; padding: 0; text-align: left; cursor: pointer; }
+.profile-tools { position: relative; }
+.profile-menu { position: absolute; z-index: 35; top: calc(100% + 13px); right: 0; width: 202px; padding: 8px; border: 1px solid #e4ecee; border-radius: 10px; background: #fff; box-shadow: 0 12px 30px rgba(24, 50, 66, .16); animation: rise .16s ease both; }
+.profile-menu > div { display: flex; flex-direction: column; gap: 3px; padding: 7px 8px 9px; border-bottom: 1px solid #edf2f3; }
+.profile-menu > div b { color: #2b4759; font-size: 10px; }
+.profile-menu > div small { color: #83959e; font-size: 9px; }
+.profile-menu button { display: flex; align-items: center; gap: 8px; width: 100%; padding: 9px 8px; border: 0; border-radius: 6px; background: transparent; color: #28657d; text-align: left; font-size: 10px; font-weight: 700; cursor: pointer; }
+.profile-menu button:hover { background: #f0f8f9; }
+.profile-menu button ion-icon { color: #1383a3; font-size: 15px; }
 .avatar { background: #d9eef1; color: #0a7189; height: 34px; width: 34px; display: grid; place-items: center; border-radius: 50%; font: 700 11px var(--font-display); }
 .profile-copy { display: flex; flex-direction: column; gap: 2px; }
 .profile-copy b { font-size: 11px; font-weight: 700; }
@@ -342,9 +350,43 @@ th.amount-col { text-align: right; }
 .activity-reopen { z-index: 12; position: fixed; right: 13px; bottom: 18px; border: 1px solid #d6e6e9; border-radius: 21px; background: white; box-shadow: 0 5px 18px rgba(35,71,86,.13); color: #137e9f; padding: 9px 13px; display: flex; align-items: center; gap: 7px; font-size: 10px; font-weight: 700; cursor: pointer; }
 .activity-reopen ion-icon { font-size: 15px; }
 .activity-reopen i { color: white; background: #dd866c; display: grid; place-items: center; border-radius: 50%; font: 700 8px var(--font-body); width: 16px; height: 16px; font-style: normal; }
-.toast-message { z-index: 50; position: fixed; top: 88px; bottom: auto; left: 50%; transform: translateX(-50%); background: #193c50; color: #fff; border-radius: 7px; padding: 11px 15px; display: flex; align-items: center; gap: 9px; box-shadow: 0 8px 28px rgba(24,50,66,.2); font-size: 11px; animation: toast-arrive .2s ease both; white-space: nowrap; }
+.toast-message { z-index: 1100; position: fixed; top: 88px; bottom: auto; left: 50%; transform: translateX(-50%); background: #193c50; color: #fff; border-radius: 7px; padding: 11px 15px; display: flex; align-items: center; gap: 9px; box-shadow: 0 8px 28px rgba(24,50,66,.2); font-size: 11px; animation: toast-arrive .2s ease both; white-space: nowrap; }
 .toast-message span { width: 6px; height: 6px; background: #57c2a2; border-radius: 50%; }
 .toast-message:empty { display: none; }
+.tour-layer { position: fixed; z-index: 1000; inset: 0; pointer-events: none; }
+.tour-dimmer { position: fixed; z-index: 1000; inset: 0; display: block; width: 100vw; height: 100dvh; pointer-events: all; }
+.tour-spotlight { position: fixed; z-index: 1001; border: 2px solid #4db5c5; border-radius: 10px; box-shadow: 0 0 0 1px rgba(255,255,255,.8), 0 0 22px rgba(56,180,195,.48); pointer-events: none; transition: left .2s ease, top .2s ease, width .2s ease, height .2s ease; }
+.tour-popover { position: fixed; z-index: 1002; display: flex; flex-direction: column; width: 360px; max-width: calc(100vw - 24px); max-height: min(440px, calc(100dvh - 24px)); overflow: hidden; border: 1px solid rgba(215,231,234,.95); border-radius: 13px; background: #fff; box-shadow: 0 18px 48px rgba(12,38,53,.24); pointer-events: auto; transition: left .22s ease, top .22s ease; animation: tour-enter .24s ease both; }
+.tour-progress-line { height: 4px; flex: 0 0 4px; background: #e8f1f2; }
+.tour-progress-line span { display: block; height: 100%; border-radius: 0 4px 4px 0; background: linear-gradient(90deg, #137e9f, #42b19a); transition: width .24s ease; }
+.tour-popover-content { overflow-y: auto; padding: 17px 19px 15px; }
+.tour-popover-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.tour-step-count, .tour-eyebrow { color: #1380a0; font-size: 9px; font-weight: 800; letter-spacing: .12em; }
+.tour-close { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: #f2f7f8; color: #718895; cursor: pointer; }
+.tour-close:hover { background: #e8f2f4; color: #137e9f; }
+.tour-close ion-icon { font-size: 16px; }
+.tour-popover h2, .tour-welcome h2 { margin: 12px 0 7px; color: #203e50; font: 700 18px/1.25 var(--font-display); letter-spacing: -.025em; }
+.tour-popover p, .tour-welcome p { margin: 0; color: #6c818d; font-size: 12px; line-height: 1.65; }
+.tour-actions { display: flex; align-items: center; gap: 8px; margin-top: 20px; padding-top: 13px; border-top: 1px solid #edf2f3; }
+.tour-actions button, .tour-welcome-actions button { min-height: 36px; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; transition: background .16s, border-color .16s, transform .16s; }
+.tour-secondary { padding: 0 12px; border: 1px solid #dce7e9; background: #fff; color: #637b87; }
+.tour-secondary:hover:not(:disabled) { border-color: #9fcbd3; background: #f5fafb; }
+.tour-secondary:disabled { opacity: .45; cursor: default; }
+.tour-skip { margin-left: auto; padding: 0 6px; border: 0; background: transparent; color: #83949c; }
+.tour-skip:hover { color: #1a7893; }
+.tour-primary { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 14px; border: 1px solid #137e9f; background: #137e9f; color: #fff; box-shadow: 0 3px 8px rgba(19,126,159,.18); }
+.tour-primary:hover { border-color: #0d6f8d; background: #0d6f8d; transform: translateY(-1px); }
+.tour-primary ion-icon { font-size: 13px; }
+button.tour-primary.is-clicking::after { border-color: rgba(255,255,255,.35); border-top-color: #fff; }
+.tour-welcome-backdrop { position: fixed; z-index: 1000; inset: 0; background: rgba(15,37,51,.62); pointer-events: all; animation: tour-fade .2s ease both; }
+.tour-welcome { position: fixed; z-index: 1001; top: 50%; left: 50%; width: 440px; max-width: calc(100vw - 30px); padding: 28px 30px 23px; border: 1px solid rgba(220,234,236,.9); border-radius: 16px; background: #fff; box-shadow: 0 24px 72px rgba(11,35,49,.3); pointer-events: auto; transform: translate(-50%, -50%); animation: tour-welcome-enter .24s ease both; }
+.tour-logo { display: block; width: 132px; height: auto; margin: 0 0 21px; }
+.tour-welcome h2 { margin-top: 10px; font-size: 23px; }
+.tour-welcome p { font-size: 12px; }
+.tour-welcome-actions { display: flex; justify-content: flex-end; align-items: center; gap: 9px; margin-top: 23px; }
+@keyframes tour-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes tour-welcome-enter { from { opacity: 0; transform: translate(-50%, -47%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+@keyframes tour-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes rise { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes toast-arrive { from { opacity: 0; transform: translate(-50%, -6px); } to { opacity: 1; transform: translate(-50%, 0); } }
 @keyframes reveal { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
@@ -490,6 +532,20 @@ th.amount-col { text-align: right; }
   .activity-header { height: 62px; min-height: 62px; }
   .activity-reopen { top: auto; bottom: calc(62px + env(safe-area-inset-bottom)); right: 14px; }
   .toast-message { top: 70px; bottom: auto; max-width: calc(100vw - 30px); white-space: normal; font-size: 10px; }
+}
+@media (max-width: 480px) {
+  .tour-popover { max-height: calc(100dvh - 24px); border-radius: 11px; }
+  .tour-popover-content { padding: 14px 15px 13px; }
+  .tour-popover h2 { font-size: 16px; }
+  .tour-popover p { font-size: 11px; }
+  .tour-actions { gap: 5px; margin-top: 14px; padding-top: 11px; }
+  .tour-actions button { min-height: 34px; font-size: 9px; }
+  .tour-secondary { padding: 0 9px; }
+  .tour-primary { padding: 0 10px; }
+  .tour-welcome { padding: 23px 21px 19px; }
+  .tour-logo { width: 116px; margin-bottom: 17px; }
+  .tour-welcome h2 { font-size: 20px; }
+  .tour-welcome p { font-size: 11px; }
 }
 @media (max-width: 370px) {
   .topbar { padding: 0 9px; gap: 6px; }
