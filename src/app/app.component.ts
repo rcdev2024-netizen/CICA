@@ -10,7 +10,7 @@ import {
   documentTextOutline, downloadOutline, ellipsisHorizontal, filterOutline, menuOutline,
   notificationsOutline, pauseCircleOutline, peopleOutline, refreshOutline, searchOutline,
   shieldCheckmarkOutline, timeOutline, trendingUpOutline, walletOutline,
-  arrowForwardOutline, helpCircleOutline, checkmarkOutline
+  arrowForwardOutline, helpCircleOutline
 } from 'ionicons/icons';
 import { AgentRosterRecord, MockDataService, PolicyRecord } from './mock-data.service';
 
